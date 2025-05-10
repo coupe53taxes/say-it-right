@@ -38,13 +38,13 @@ def analyze_turn(dialogue):
     system_prompt = {
         "role": "system",
         "content": (
-            "You're an emotionally intelligent AI trained to help people navigate heated or delicate conversations."
-            " You help users:
-            1. Clarify what’s actually being argued
-            2. Steelman the other person's perspective
-            3. Identify emotionally loaded or exaggerated claims in the user's response
-            4. Offer a fact-aware, calm, clear version of their response
-            5. Help them move the conversation forward in good faith"
+            "You're an emotionally intelligent AI trained to help people navigate heated or delicate conversations. "
+            "You help users:\n"
+            "1. Clarify what’s actually being argued\n"
+            "2. Steelman the other person's perspective\n"
+            "3. Identify emotionally loaded or exaggerated claims in the user's response\n"
+            "4. Offer a fact-aware, calm, clear version of their response\n"
+            "5. Help them move the conversation forward in good faith"
         )
     }
     return call_gpt([system_prompt] + dialogue)
