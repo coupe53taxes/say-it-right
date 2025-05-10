@@ -1,4 +1,4 @@
-# Enhanced Streamlit MVP with Integrated Disagreement Detection (OpenAI v1.x compatible)
+# Enhanced Interactive Streamlit App for Conversation Mediation
 
 import streamlit as st
 import os
@@ -13,65 +13,78 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 st.set_page_config(page_title="Say It Right", page_icon="✉️")
 st.title("Say It Right")
-st.caption("Preserve relationships, defuse tensions, and discover clarity.")
+st.caption("Navigate difficult conversations with clarity, empathy, and insight.")
 
-# Select primary mode
-mode = st.selectbox("Choose how you'd like to approach this:", ["Rephrase My Message", "Steelman Their Message"])
+# Store conversation context
+if "conversation_history" not in st.session_state:
+    st.session_state.conversation_history = []
 
-# User input based on mode
-user_input = st.text_area("Type the message here:")
-
-# Main function to interact with OpenAI Chat API
-def call_gpt(prompt):
+# Function to interact with OpenAI API
+def call_gpt(messages):
     try:
         response = client.chat.completions.create(
             model="gpt-4o",
-            messages=[
-                {"role": "system", "content": "You're a calm, insightful, conflict-mediating assistant skilled at reducing tension and clarifying real disagreements."},
-                {"role": "user", "content": prompt}
-            ]
+            messages=messages
         )
         return response.choices[0].message.content.strip()
     except Exception as e:
         return f"Error from OpenAI API: {e}"
 
-# Core prompt templates
-prompt_templates = {
-    "Rephrase My Message": "Rephrase this message in a calm, respectful, and charitable tone. Clarify ambiguity and reduce exaggeration:\n\n'{}'",
-    "Steelman Their Message": "Interpret this statement charitably, in its strongest and most reasonable form:\n\n'{}'"
-}
+# Function to generate structured response
+def generate_structured_response(conversation):
+    prompt_messages = [
+        {"role": "system", "content": "You are a calm, insightful mediator skilled at reducing tensions and clarifying disagreements."}
+    ]
+    prompt_messages += conversation
 
-# Process the initial request
-if st.button("Translate"):
-    initial_prompt = prompt_templates[mode].format(user_input)
-    revised_message = call_gpt(initial_prompt)
-    
-    st.subheader("Here's a better way to say it:")
-    st.write(revised_message)
-
-    # Optional follow-up: Detect real disagreement
-    follow_up_prompt = (
-        "Given the original message and the improved version, briefly explain the real underlying disagreement or issue. "
-        "Be clear, neutral, and insightful.\n\n"
-        f"Original message: '{user_input}'\n"
-        f"Improved version: '{revised_message}'"
+    structured_prompt = (
+        "Given this conversation, perform the following tasks clearly separated by headers:\n"
+        "1. **Steelman Each Perspective**: Restate each person's viewpoint in its strongest, most reasonable form.\n"
+        "2. **Clarify Real Disagreement**: Identify the core issue or value underlying the disagreement.\n"
+        "3. **Constructive Next Message**: Suggest a calm, respectful, and clear message for the next step in the conversation."
     )
 
-    disagreement_insight = call_gpt(follow_up_prompt)
+    prompt_messages.append({"role": "user", "content": structured_prompt})
 
-    st.subheader("💡 Insight: The Real Disagreement")
-    st.write(disagreement_insight)
+    return call_gpt(prompt_messages)
 
-    st.info("Knowing where the real disagreement lies can make conversations more meaningful and less stressful.")
+# User input area
+st.subheader("Describe the Conversation")
+user_message = st.text_area("Describe what's happening in the conversation or paste your last message here:", height=150)
 
-    # Optional advanced step: further clarify disagreement
-    if st.button("Explore this disagreement deeper"):
-        deeper_prompt = (
-            "Offer advice on how to respectfully explore and resolve this specific type of disagreement:\n\n"
-            f"Disagreement: '{disagreement_insight}'"
-        )
-        deeper_advice = call_gpt(deeper_prompt)
+if st.button("Get Insight"):
+    if user_message:
+        st.session_state.conversation_history.append({"role": "user", "content": user_message})
 
-        st.subheader("🚦 How to Navigate this Disagreement")
-        st.write(deeper_advice)
-        st.success("You’re now equipped to handle this conversation with greater clarity and confidence.")
+        with st.spinner("Analyzing conversation..."):
+            structured_response = generate_structured_response(st.session_state.conversation_history)
+
+        st.subheader("🧠 Insight and Guidance")
+        st.markdown(structured_response)
+
+        # Option to copy/share suggested response
+        suggested_message_start = structured_response.find("**Constructive Next Message**")
+        if suggested_message_start != -1:
+            suggested_message = structured_response[suggested_message_start:].split("\n", 1)[1].strip()
+
+            st.text_area("Suggested Message to Send:", value=suggested_message, height=100)
+
+            st.write("Copy and paste the above message into your preferred messaging app or email.")
+
+            st.markdown("---")
+            st.info("This app respects your privacy by not sending messages directly. You control what gets shared.")
+
+            st.markdown("### 📤 Easy Share")
+            st.write("Use the buttons below to quickly share this suggestion:")
+            email_body = suggested_message.replace(" ", "%20").replace("\n", "%0A")
+            sms_body = suggested_message.replace(" ", "%20").replace("\n", "%0A")
+
+            st.markdown(f"[✉️ Email](mailto:?subject=Conversation%20Suggestion&body={email_body})")
+            st.markdown(f"[📱 SMS](sms:?body={sms_body})")
+    else:
+        st.warning("Please enter some details about the conversation before continuing.")
+
+# Button to reset conversation history
+if st.button("Start New Conversation"):
+    st.session_state.conversation_history = []
+    st.success("Conversation context reset.")
