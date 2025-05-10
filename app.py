@@ -73,6 +73,8 @@ def analyze_turn(dialogue):
     }
     return call_gpt([system_prompt] + dialogue)
 
+# Just a spacer to ensure content differs for patch tracking
+
 def generate_rewrite(dialogue):
     rewrite_prompt = [
         {"role": "system", "content": "You are a communication assistant that rewrites emotionally intense or unclear messages into tactful, truthful, and constructive ones. Always aim to preserve the user's intent while removing hyperbole, insults, or unproductive framing."},
