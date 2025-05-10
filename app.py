@@ -15,12 +15,13 @@ st.set_page_config(page_title="Say It Right", page_icon="✉️")
 st.title("Say It Right")
 st.caption("Diffuse conflict. Preserve truth. Protect what matters.")
 
-# Session state for storing conversation
+# Session state for storing conversation and controls
 if "dialogue" not in st.session_state:
     st.session_state.dialogue = []
-
 if "stage" not in st.session_state:
     st.session_state.stage = "purpose"
+if "show_map" not in st.session_state:
+    st.session_state.show_map = False
 
 # GPT call helper
 def call_gpt(messages):
@@ -33,21 +34,58 @@ def call_gpt(messages):
     except Exception as e:
         return f"Error: {e}"
 
+# Generate map description
+def generate_convo_map(dialogue):
+    map_prompt = [
+        {"role": "system", "content": "You summarize and visually map how a conversation is progressing, especially arguments or disagreements."},
+        {"role": "user", "content": f"Here's the conversation so far:\n\n{dialogue}\n\nPlease create a simple flow description and a one-paragraph summary."}
+    ]
+    return call_gpt(map_prompt)
+
+# Sidebar map button
+with st.sidebar:
+    if st.button("🧭 View Conversation Map"):
+        st.session_state.show_map = not st.session_state.show_map
+    if st.session_state.show_map:
+        st.subheader("Conversation Map")
+        raw_dialogue = "\n\n".join([f"{entry['role']}: {entry['content']}" for entry in st.session_state.dialogue])
+        map_output = generate_convo_map(raw_dialogue)
+        st.markdown(map_output)
+
 # Structured conversation analysis and rewriter
 def analyze_turn(dialogue):
     system_prompt = {
         "role": "system",
         "content": (
             "You're an emotionally intelligent AI trained to help people navigate heated or delicate conversations. "
-            "You help users:\n"
-            "1. Clarify what’s actually being argued\n"
-            "2. Steelman the other person's perspective\n"
-            "3. Identify emotionally loaded or exaggerated claims in the user's response\n"
-            "4. Offer a fact-aware, calm, clear version of their response\n"
+            "You help users:
+"
+            "1. Clarify what’s actually being argued
+"
+            "2. Steelman the other person's perspective
+"
+            "3. Identify emotionally loaded or exaggerated claims in the user's response
+"
+            "4. Offer a fact-aware, calm, clear version of their response
+"
             "5. Help them move the conversation forward in good faith"
         )
     }
     return call_gpt([system_prompt] + dialogue)
+
+def generate_rewrite(dialogue):
+    rewrite_prompt = [
+        {"role": "system", "content": "You are a communication assistant that rewrites emotionally intense or unclear messages into tactful, truthful, and constructive ones. Always aim to preserve the user's intent while removing hyperbole, insults, or unproductive framing."},
+        *dialogue,
+        {"role": "user", "content": "Rewrite my last message in a more tactful, clear, and emotionally constructive way. If it contains factual exaggeration or assumptions, note or clarify them calmly within the rewrite."}
+    ]
+    return call_gpt(rewrite_prompt)
+
+# Last step preview display
+if len(st.session_state.dialogue) > 0:
+    st.markdown("### 🔁 Previous Input")
+    last = st.session_state.dialogue[-1]
+    st.markdown(f"**{last['role'].capitalize()}:** {last['content']}")
 
 # Step 1 – Purpose of the conversation
 if st.session_state.stage == "purpose":
@@ -102,9 +140,9 @@ elif st.session_state.stage == "user_reply":
 elif st.session_state.stage == "rewrite":
     st.subheader("✍️ A refined version of your message")
 
-    if "rewrite_response" not in st.session_state:
+        if "rewrite_response" not in st.session_state:
         with st.spinner("Rewriting for clarity, fairness, and impact..."):
-            rewrite = analyze_turn(st.session_state.dialogue)
+            rewrite = generate_rewrite(st.session_state.dialogue)
         st.session_state.rewrite_response = rewrite
 
     st.markdown("#### Here's a calmer, clearer version you might send:")
@@ -135,4 +173,5 @@ st.sidebar.markdown("---")
 if st.sidebar.button("🔄 Start Over"):
     st.session_state.dialogue = []
     st.session_state.stage = "purpose"
+    st.session_state.show_map = False
     st.rerun()
