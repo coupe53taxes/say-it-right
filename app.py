@@ -101,20 +101,35 @@ elif st.session_state.stage == "user_reply":
 # Step 5 – Rewrite and moderate the response
 elif st.session_state.stage == "rewrite":
     st.subheader("✍️ A refined version of your message")
-    with st.spinner("Rewriting for clarity, fairness, and impact..."):
-        rewrite = analyze_turn(st.session_state.dialogue)
+
+    if "rewrite_response" not in st.session_state:
+        with st.spinner("Rewriting for clarity, fairness, and impact..."):
+            rewrite = analyze_turn(st.session_state.dialogue)
+        st.session_state.rewrite_response = rewrite
 
     st.markdown("#### Here's a calmer, clearer version you might send:")
-    st.text_area("Polished Reply:", value=rewrite, height=120)
+    st.text_area("Polished Reply:", value=st.session_state.rewrite_response, height=120)
 
-    email_body = rewrite.replace(" ", "%20").replace("\n", "%0A")
-    sms_body = rewrite.replace(" ", "%20").replace("\n", "%0A")
+    email_body = st.session_state.rewrite_response.replace(" ", "%20").replace("
+", "%0A")
+    sms_body = st.session_state.rewrite_response.replace(" ", "%20").replace("
+", "%0A")
     st.markdown(f"[✉️ Email](mailto:?subject=Suggested%20Response&body={email_body})")
     st.markdown(f"[📱 SMS](sms:?body={sms_body})")
 
-    st.markdown("---")
-    st.info("Want to keep going? Paste their reply below and we'll continue helping.")
-    st.session_state.stage = "loop"
+    if st.button("Continue the conversation"):
+        st.session_state.stage = "loop"
+        del st.session_state.rewrite_response
+        st.rerun()
+
+# Step 6 – Loop: handle ongoing exchange
+elif st.session_state.stage == "loop":
+    st.subheader("Step 6: What did they say back?")
+    new_input = st.text_area("Paste their most recent message here:")
+    if st.button("Submit interlocutor's reply"):
+        st.session_state.dialogue.append({"role": "user", "content": f"Interlocutor reply: {new_input}"})
+        st.session_state.stage = "user_reply"
+        st.rerun()
 
 # Step 6 – Loop: handle ongoing exchange
 elif st.session_state.stage == "loop":
