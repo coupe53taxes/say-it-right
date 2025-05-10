@@ -112,9 +112,12 @@ elif st.session_state.stage == "rewrite":
 
        email_body = st.session_state.rewrite_response.replace(" ", "%20").replace("
 ", "%0A")
+", "%0A")
     sms_body = st.session_state.rewrite_response.replace(" ", "%20").replace("
 ", "%0A")
-    st.markdown(f"[✉️ Email](mailto:?subject=Suggested%20Response&body={email_body})")
+    sms_body = st.session_state.rewrite_response.replace(" ", "%20").replace("
+", "%0A")
+st.markdown(f"[✉️ Email](mailto:?subject=Suggested%20Response&body={email_body})")
     st.markdown(f"[📱 SMS](sms:?body={sms_body})")
 
     if st.button("Continue the conversation"):
