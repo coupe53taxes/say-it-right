@@ -110,14 +110,10 @@ elif st.session_state.stage == "rewrite":
     st.markdown("#### Here's a calmer, clearer version you might send:")
     st.text_area("Polished Reply:", value=st.session_state.rewrite_response, height=120)
 
-    email_body = st.session_state.rewrite_response.replace(" ", "%20").replace("
-", "%0A")
-", "%0A")
-    sms_body = st.session_state.rewrite_response.replace(" ", "%20").replace("
-", "%0A")
-    sms_body = st.session_state.rewrite_response.replace(" ", "%20").replace("
-", "%0A")
-st.markdown(f"[✉️ Email](mailto:?subject=Suggested%20Response&body={email_body})")
+    email_body = st.session_state.rewrite_response.replace(" ", "%20").replace("\n", "%0A")
+    sms_body = st.session_state.rewrite_response.replace(" ", "%20").replace("\n", "%0A")
+
+    st.markdown(f"[✉️ Email](mailto:?subject=Suggested%20Response&body={email_body})")
     st.markdown(f"[📱 SMS](sms:?body={sms_body})")
 
     if st.button("Continue the conversation"):
@@ -130,15 +126,6 @@ elif st.session_state.stage == "loop":
     st.subheader("Step 6: What did they say back?")
     new_input = st.text_area("Paste their most recent message here:")
     if st.button("Submit interlocutor's reply"):
-        st.session_state.dialogue.append({"role": "user", "content": f"Interlocutor reply: {new_input}"})
-        st.session_state.stage = "user_reply"
-        st.rerun()
-
-# Step 6 – Loop: handle ongoing exchange
-elif st.session_state.stage == "loop":
-    st.subheader("Step 5: What did they say back?")
-    new_input = st.text_area("Paste their most recent message here:")
-    if st.button("Continue the conversation"):
         st.session_state.dialogue.append({"role": "user", "content": f"Interlocutor reply: {new_input}"})
         st.session_state.stage = "user_reply"
         st.rerun()
