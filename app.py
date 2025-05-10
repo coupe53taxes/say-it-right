@@ -1,12 +1,15 @@
-# Enhanced Streamlit MVP with Integrated Disagreement Detection
+# Enhanced Streamlit MVP with Integrated Disagreement Detection (OpenAI v1.x compatible)
 
 import streamlit as st
-import openai
 import os
 from dotenv import load_dotenv
+from openai import OpenAI
 
+# Load environment variables
 load_dotenv()
-openai.api_key = os.getenv("OPENAI_API_KEY")
+
+# Initialize OpenAI client
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 st.set_page_config(page_title="Say It Right", page_icon="✉️")
 st.title("Say It Right")
@@ -18,15 +21,17 @@ mode = st.selectbox("Choose how you'd like to approach this:", ["Rephrase My Mes
 # User input based on mode
 user_input = st.text_area("Type the message here:")
 
-# Main function to interact with GPT-4o
+# Main function to interact with OpenAI Chat API
 def call_gpt(prompt):
     try:
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-4o",
-            messages=[{"role": "system", "content": "You're a calm, insightful, conflict-mediating assistant skilled at reducing tension and clarifying real disagreements."},
-                      {"role": "user", "content": prompt}]
+            messages=[
+                {"role": "system", "content": "You're a calm, insightful, conflict-mediating assistant skilled at reducing tension and clarifying real disagreements."},
+                {"role": "user", "content": prompt}
+            ]
         )
-        return response["choices"][0]["message"]["content"].strip()
+        return response.choices[0].message.content.strip()
     except Exception as e:
         return f"Error from OpenAI API: {e}"
 
