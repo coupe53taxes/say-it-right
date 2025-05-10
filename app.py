@@ -111,9 +111,9 @@ elif st.session_state.stage == "rewrite":
     st.text_area("Polished Reply:", value=st.session_state.rewrite_response, height=120)
 
     email_body = st.session_state.rewrite_response.replace(" ", "%20").replace("
-", "%0A").replace("
 ", "%0A")
     sms_body = st.session_state.rewrite_response.replace(" ", "%20").replace("
+", "%0A")
 ", "%0A").replace("
 ", "%0A")
     st.markdown(f"[✉️ Email](mailto:?subject=Suggested%20Response&body={email_body})")
