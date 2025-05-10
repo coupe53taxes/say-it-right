@@ -76,11 +76,18 @@ elif st.session_state.stage == "context":
 # Step 3 – Analyze the initial setup
 elif st.session_state.stage == "analyze":
     st.subheader("🧠 Insight from the situation")
-    with st.spinner("Thinking clearly about what matters most..."):
-        insight = analyze_turn(st.session_state.dialogue)
-    st.markdown(insight)
-    st.session_state.stage = "user_reply"
-    st.rerun()
+
+    if "insight_response" not in st.session_state:
+        with st.spinner("Thinking clearly about what matters most..."):
+            insight = analyze_turn(st.session_state.dialogue)
+        st.session_state.insight_response = insight
+
+    st.markdown(st.session_state.insight_response)
+
+    if st.button("Continue"):
+        st.session_state.stage = "user_reply"
+        del st.session_state.insight_response
+        st.rerun()
 
 # Step 4 – User's intended reply
 elif st.session_state.stage == "user_reply":
