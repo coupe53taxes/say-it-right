@@ -112,7 +112,9 @@ elif st.session_state.stage == "rewrite":
 
     email_body = st.session_state.rewrite_response.replace(" ", "%20").replace("
 ", "%0A")
+", "%0A")
     sms_body = st.session_state.rewrite_response.replace(" ", "%20").replace("
+", "%0A")
 ", "%0A")
 ", "%0A").replace("
 ", "%0A")
