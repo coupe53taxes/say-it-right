@@ -1,4 +1,4 @@
-# Enhanced Interactive Streamlit App for Conversation Mediation
+# Interactive Streamlit App: Conversation Mediation & Guidance
 
 import streamlit as st
 import os
@@ -13,13 +13,16 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 st.set_page_config(page_title="Say It Right", page_icon="✉️")
 st.title("Say It Right")
-st.caption("Navigate difficult conversations with clarity, empathy, and insight.")
+st.caption("Diffuse conflict. Preserve truth. Protect what matters.")
 
-# Store conversation context
-if "conversation_history" not in st.session_state:
-    st.session_state.conversation_history = []
+# Session state for storing conversation
+if "dialogue" not in st.session_state:
+    st.session_state.dialogue = []
 
-# Function to interact with OpenAI API
+if "stage" not in st.session_state:
+    st.session_state.stage = "purpose"
+
+# GPT call helper
 def call_gpt(messages):
     try:
         response = client.chat.completions.create(
@@ -28,63 +31,96 @@ def call_gpt(messages):
         )
         return response.choices[0].message.content.strip()
     except Exception as e:
-        return f"Error from OpenAI API: {e}"
+        return f"Error: {e}"
 
-# Function to generate structured response
-def generate_structured_response(conversation):
-    prompt_messages = [
-        {"role": "system", "content": "You are a calm, insightful mediator skilled at reducing tensions and clarifying disagreements."}
-    ]
-    prompt_messages += conversation
+# Structured conversation analysis and rewriter
+def analyze_turn(dialogue):
+    system_prompt = {
+        "role": "system",
+        "content": (
+            "You're an emotionally intelligent AI trained to help people navigate heated or delicate conversations."
+            " You help users:
+            1. Clarify what’s actually being argued
+            2. Steelman the other person's perspective
+            3. Identify emotionally loaded or exaggerated claims in the user's response
+            4. Offer a fact-aware, calm, clear version of their response
+            5. Help them move the conversation forward in good faith"
+        )
+    }
+    return call_gpt([system_prompt] + dialogue)
 
-    structured_prompt = (
-        "Given this conversation, perform the following tasks clearly separated by headers:\n"
-        "1. **Steelman Each Perspective**: Restate each person's viewpoint in its strongest, most reasonable form.\n"
-        "2. **Clarify Real Disagreement**: Identify the core issue or value underlying the disagreement.\n"
-        "3. **Constructive Next Message**: Suggest a calm, respectful, and clear message for the next step in the conversation."
-    )
+# Step 1 – Purpose of the conversation
+if st.session_state.stage == "purpose":
+    st.subheader("Step 1: What's going on?")
+    purpose = st.selectbox("Choose the situation you're dealing with:", [
+        "A disagreement with an acquaintance in person",
+        "A text argument with a friend or loved one",
+        "An emotionally charged topic online",
+        "Someone misunderstood me and got upset",
+        "I lost my temper and want to respond better"
+    ])
+    if st.button("Next"):
+        st.session_state.stage = "context"
+        st.session_state.dialogue.append({"role": "user", "content": f"Situation: {purpose}"})
+        st.rerun()
 
-    prompt_messages.append({"role": "user", "content": structured_prompt})
+# Step 2 – Context of the conversation
+elif st.session_state.stage == "context":
+    st.subheader("Step 2: What's the disagreement about?")
+    context = st.text_area("Describe the situation. What are you trying to say, and how did they respond?")
+    if st.button("Analyze the situation"):
+        st.session_state.dialogue.append({"role": "user", "content": f"Context: {context}"})
+        st.session_state.stage = "analyze"
+        st.rerun()
 
-    return call_gpt(prompt_messages)
+# Step 3 – Analyze the initial setup
+elif st.session_state.stage == "analyze":
+    st.subheader("🧠 Insight from the situation")
+    with st.spinner("Thinking clearly about what matters most..."):
+        insight = analyze_turn(st.session_state.dialogue)
+    st.markdown(insight)
+    st.session_state.stage = "user_reply"
+    st.rerun()
 
-# User input area
-st.subheader("Describe the Conversation")
-user_message = st.text_area("Describe what's happening in the conversation or paste your last message here:", height=150)
+# Step 4 – User's intended reply
+elif st.session_state.stage == "user_reply":
+    st.subheader("Step 4: Your next move")
+    reply = st.text_area("What are you planning to say next?")
+    if st.button("Polish and optimize my response"):
+        st.session_state.dialogue.append({"role": "user", "content": f"User’s planned message: {reply}"})
+        st.session_state.stage = "rewrite"
+        st.rerun()
 
-if st.button("Get Insight"):
-    if user_message:
-        st.session_state.conversation_history.append({"role": "user", "content": user_message})
+# Step 5 – Rewrite and moderate the response
+elif st.session_state.stage == "rewrite":
+    st.subheader("✍️ A refined version of your message")
+    with st.spinner("Rewriting for clarity, fairness, and impact..."):
+        rewrite = analyze_turn(st.session_state.dialogue)
 
-        with st.spinner("Analyzing conversation..."):
-            structured_response = generate_structured_response(st.session_state.conversation_history)
+    st.markdown("#### Here's a calmer, clearer version you might send:")
+    st.text_area("Polished Reply:", value=rewrite, height=120)
 
-        st.subheader("🧠 Insight and Guidance")
-        st.markdown(structured_response)
+    email_body = rewrite.replace(" ", "%20").replace("\n", "%0A")
+    sms_body = rewrite.replace(" ", "%20").replace("\n", "%0A")
+    st.markdown(f"[✉️ Email](mailto:?subject=Suggested%20Response&body={email_body})")
+    st.markdown(f"[📱 SMS](sms:?body={sms_body})")
 
-        # Option to copy/share suggested response
-        suggested_message_start = structured_response.find("**Constructive Next Message**")
-        if suggested_message_start != -1:
-            suggested_message = structured_response[suggested_message_start:].split("\n", 1)[1].strip()
+    st.markdown("---")
+    st.info("Want to keep going? Paste their reply below and we'll continue helping.")
+    st.session_state.stage = "loop"
 
-            st.text_area("Suggested Message to Send:", value=suggested_message, height=100)
+# Step 6 – Loop: handle ongoing exchange
+elif st.session_state.stage == "loop":
+    st.subheader("Step 5: What did they say back?")
+    new_input = st.text_area("Paste their most recent message here:")
+    if st.button("Continue the conversation"):
+        st.session_state.dialogue.append({"role": "user", "content": f"Interlocutor reply: {new_input}"})
+        st.session_state.stage = "user_reply"
+        st.rerun()
 
-            st.write("Copy and paste the above message into your preferred messaging app or email.")
-
-            st.markdown("---")
-            st.info("This app respects your privacy by not sending messages directly. You control what gets shared.")
-
-            st.markdown("### 📤 Easy Share")
-            st.write("Use the buttons below to quickly share this suggestion:")
-            email_body = suggested_message.replace(" ", "%20").replace("\n", "%0A")
-            sms_body = suggested_message.replace(" ", "%20").replace("\n", "%0A")
-
-            st.markdown(f"[✉️ Email](mailto:?subject=Conversation%20Suggestion&body={email_body})")
-            st.markdown(f"[📱 SMS](sms:?body={sms_body})")
-    else:
-        st.warning("Please enter some details about the conversation before continuing.")
-
-# Button to reset conversation history
-if st.button("Start New Conversation"):
-    st.session_state.conversation_history = []
-    st.success("Conversation context reset.")
+# Option to restart
+st.sidebar.markdown("---")
+if st.sidebar.button("🔄 Start Over"):
+    st.session_state.dialogue = []
+    st.session_state.stage = "purpose"
+    st.rerun()
