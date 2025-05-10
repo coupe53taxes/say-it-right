@@ -57,8 +57,7 @@ def analyze_turn(dialogue):
     system_prompt = {
         "role": "system",
         "content": (
-            "You are an emotionally intelligent assistant helping users navigate difficult conversations.
-            "
+            "You are an emotionally intelligent assistant helping users navigate difficult conversations."
             "Your job is to:
 "
             "1. Clarify what’s actually being argued
