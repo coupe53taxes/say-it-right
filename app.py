@@ -59,6 +59,8 @@ def classify_situation(user_input):
 "
 
 "
+
+"
         + "User input: " + user_input + "
 
 "
