@@ -53,8 +53,7 @@ elif st.session_state.stage == "debate_moderator":
 
         if st.session_state.fight_history:
             last_polished = st.session_state.fight_history[-1]["polished"]
-            st.markdown(f
-            "**User {other_user}'s last response:**")
+            st.markdown(f"**User {other_user}'s last response:**")
             st.info(last_polished)
 
         user_text = st.text_area("Enter your side of the debate:")
