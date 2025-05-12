@@ -1,5 +1,10 @@
 # Interactive Streamlit App: Context-Aware Communication Assistant
-
+# Ensure explicit, correct session state initialization
+if "stage" not in st.session_state or st.session_state.stage == "initial_input":
+    st.session_state.stage = "goal_select"
+    st.session_state.fight_stage = None
+    st.session_state.fight_history = []
+    st.session_state.current_user = "A"
 import streamlit as st
 import os
 from dotenv import load_dotenv
