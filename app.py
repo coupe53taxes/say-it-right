@@ -49,31 +49,31 @@ def classify_situation(user_input):
 
     user_goal = st.session_state.user_goal
     prompt = [
-    {"role": "system", "content": (
-        "You are a conversation strategist. The user will describe a communication challenge."
-        " Based on what they write and their stated goal, analyze the context and infer their communication style."
-    )},
-    {"role": "user", "content": (
-        "User goal: " + user_goal + "
+    {
+        "role": "system",
+        "content": (
+            "You are a conversation strategist. The user will describe a communication challenge."
+            " Based on what they write and their stated goal, analyze the context and infer their communication style."
+        )
+    },
+    {
+        "role": "user",
+        "content": (
+            "User goal: " + user_goal + "
 
 "
+            + "User input: " + user_input + "
 
 "
-
+            + "Please respond with:
 "
-
+            + "Situation: [brief summary of what’s going on]
 "
-        + "User input: " + user_input + "
-
+            + "Ongoing conversation: [Yes/No]
 "
-        + "Please respond with:
-"
-        + "Situation: [brief summary of what’s going on]
-"
-        + "Ongoing conversation: [Yes/No]
-"
-        + "User style: [short phrase]"
-    )}
+            + "User style: [short phrase]"
+        )
+    }
 ]
     return call_gpt(prompt)
 
