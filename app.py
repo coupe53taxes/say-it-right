@@ -45,26 +45,19 @@ def call_gpt(messages):
 def classify_situation(user_input):
     user_goal = st.session_state.user_goal
     prompt = [
-        {"role": "system", "content": (
-            "You are a conversation strategist. The user will describe a communication challenge."
-            " Based on what they write and their stated goal, analyze the context and infer their communication style."
-        )},
-        {"role": "user", "content": (
-            f"User goal: {user_goal}
-
-"
-            f"User input: {user_input}
-
-"
-            "Please respond with:
-"
-            "Situation: [brief summary of what’s going on]
-"
-            "Ongoing conversation: [Yes/No]
-"
-            "User style: [short phrase]"
-        )}
-    ]
+    {"role": "system", "content": (
+        "You are a conversation strategist. The user will describe a communication challenge."
+        " Based on what they write and their stated goal, analyze the context and infer their communication style."
+    )},
+    {"role": "user", "content": (
+        "User goal: " + user_goal + "\n\n"
+        + "User input: " + user_input + "\n\n"
+        + "Please respond with:\n"
+        + "Situation: [brief summary of what’s going on]\n"
+        + "Ongoing conversation: [Yes/No]\n"
+        + "User style: [short phrase]"
+    )}
+]
     return call_gpt(prompt)
 
 # Generate rewrite using learned communication style
