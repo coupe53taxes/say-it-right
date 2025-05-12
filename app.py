@@ -51,6 +51,8 @@ def generate_convo_map(dialogue):
             "The user's communication goal is: " + st.session_state.user_goal + ".
 
 "
+
+"
             + "Here's the conversation so far:
 
 " + dialogue + "
