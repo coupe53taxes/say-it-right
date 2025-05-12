@@ -84,7 +84,29 @@ elif st.session_state.stage == "debate_moderator":
             st.rerun()
 
     with st.sidebar():
-    pass
+    st.header("Debate Tools")
+    if st.button("🧭 View Debate Summary"):
+        if st.session_state.fight_history:
+            history = "
+
+".join([
+                f"{entry['user']}: {entry['polished']}" 
+                for entry in st.session_state.fight_history if 'polished' in entry
+            ])
+            summary = call_gpt([
+                {"role": "system", "content": "Provide a neutral summary of the ongoing debate highlighting points of agreement, disagreement, and potential resolution points."},
+                {"role": "user", "content": history}
+            ])
+            st.markdown(summary)
+
+    if st.button("🔄 Restart Debate"):
+        st.session_state.stage = "goal_select"
+        st.session_state.fight_stage = None
+        st.session_state.fight_history = []
+        st.session_state.current_user = "A"
+        st.rerun()
+
+    st.caption("All feedback remains confidential. Your opponent can't see your inputs or the feedback you receive.")
     st.header("Debate Tools")
 if st.button("🧭 View Debate Summary"):
             history = """
