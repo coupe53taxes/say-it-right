@@ -91,6 +91,8 @@ elif st.session_state.stage == "debate_moderator":
 
 ""
 
+"
+
 ".join([
                 f"{entry['user']}: {entry['polished']}"
                 for entry in st.session_state.fight_history if 'polished' in entry
