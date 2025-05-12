@@ -84,7 +84,7 @@ elif st.session_state.stage == "debate_moderator":
             st.rerun()
 
     with st.sidebar:
-        st.header("Debate Tools")
+    st.header("Debate Tools")
         if st.button("🧭 View Debate Summary"):
             history = """
 
@@ -96,6 +96,7 @@ elif st.session_state.stage == "debate_moderator":
 st.markdown(summary)
 
         
+    
     if st.button("🔄 Restart Debate"):
             st.session_state.stage = "goal_select"
             st.session_state.fight_stage = None
