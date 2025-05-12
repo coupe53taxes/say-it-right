@@ -21,7 +21,8 @@ if "dialogue" not in st.session_state:
 if "stage" not in st.session_state:
     st.session_state.stage = "goal_select"
     st.session_state.stage = "goal_select"
-    st.session_state.stage = "initial_input"
+    st.session_state.stage = "goal_select"
+    st.session_state.stage = "context_input"
 if "show_map" not in st.session_state:
     st.session_state.show_map = False
 if "situation_type" not in st.session_state:
@@ -99,35 +100,35 @@ if st.session_state.stage == "goal_select":
 
     if cols1[0].button("🫱 I want to explain myself clearly"):
         st.session_state.user_goal = "Be understood"
-        st.session_state.stage = "initial_input"
+        st.session_state.stage = "context_input"
         st.rerun()
 
     if cols1[1].button("🧯 I want to cool things down before it gets worse"):
         st.session_state.user_goal = "Defuse the situation"
-        st.session_state.stage = "initial_input"
+        st.session_state.stage = "context_input"
         st.rerun()
 
     if cols2[0].button("🤝 I want to get through to them without causing a fight"):
         st.session_state.user_goal = "Persuade without escalation"
-        st.session_state.stage = "initial_input"
+        st.session_state.stage = "context_input"
         st.rerun()
 
     if cols2[1].button("⚖️ We both think we're right"):
         st.session_state.user_goal = "Mutual conviction"
-        st.session_state.stage = "initial_input"
+        st.session_state.stage = "context_input"
         st.rerun()
 
     if cols3[0].button("📣 Media has me heated"):
         st.session_state.user_goal = "Reacting to content"
-        st.session_state.stage = "initial_input"
+        st.session_state.stage = "context_input"
         st.rerun()
 
     if cols3[1].button("🧘 I just need to vent and reflect"):
         st.session_state.user_goal = "Venting"
-        st.session_state.stage = "initial_input"
+        st.session_state.stage = "context_input"
         st.rerun()
 
-elif st.session_state.stage == "initial_input":
+elif st.session_state.stage == "context_input":
     st.subheader("🧭 What’s going on?")
     user_input = st.text_area("Briefly describe the situation, what's been said (if anything), and what you’re hoping to achieve.")
     if st.button("Analyze My Situation"):
@@ -170,7 +171,7 @@ elif st.session_state.stage == "rewrite":
 
     if st.button("🔁 Start Over"):
         st.session_state.dialogue = []
-        st.session_state.stage = "initial_input"
+        st.session_state.stage = "context_input"
         st.session_state.user_style = ""
         st.session_state.situation_type = ""
         st.rerun()
