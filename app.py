@@ -43,6 +43,10 @@ def call_gpt(messages):
 # Analyze user's situation input
 
 def classify_situation(user_input):
+    if "user_goal" not in st.session_state:
+        st.session_state.stage = "goal_select"
+        st.rerun()
+
     user_goal = st.session_state.user_goal
     prompt = [
     {"role": "system", "content": (
@@ -50,11 +54,18 @@ def classify_situation(user_input):
         " Based on what they write and their stated goal, analyze the context and infer their communication style."
     )},
     {"role": "user", "content": (
-        "User goal: " + user_goal + "\n\n"
-        + "User input: " + user_input + "\n\n"
-        + "Please respond with:\n"
-        + "Situation: [brief summary of what’s going on]\n"
-        + "Ongoing conversation: [Yes/No]\n"
+        "User goal: " + user_goal + "
+
+"
+        + "User input: " + user_input + "
+
+"
+        + "Please respond with:
+"
+        + "Situation: [brief summary of what’s going on]
+"
+        + "Ongoing conversation: [Yes/No]
+"
         + "User style: [short phrase]"
     )}
 ]
