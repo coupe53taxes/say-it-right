@@ -20,6 +20,7 @@ if "dialogue" not in st.session_state:
     st.session_state.dialogue = []
 if "stage" not in st.session_state:
     st.session_state.stage = "goal_select"
+    st.session_state.stage = "goal_select"
     st.session_state.stage = "initial_input"
 if "show_map" not in st.session_state:
     st.session_state.show_map = False
@@ -59,11 +60,18 @@ def classify_situation(user_input):
     {
         "role": "user",
         "content": (
-            "User goal: " + user_goal + "\n\n"
-            + "User input: " + user_input + "\n\n"
-            + "Please respond with:\n"
-            + "Situation: [brief summary of what’s going on]\n"
-            + "Ongoing conversation: [Yes/No]\n"
+            "User goal: " + user_goal + "
+
+"
+            + "User input: " + user_input + "
+
+"
+            + "Please respond with:
+"
+            + "Situation: [brief summary of what’s going on]
+"
+            + "Ongoing conversation: [Yes/No]
+"
             + "User style: [short phrase]"
         )
     }
@@ -86,6 +94,7 @@ def generate_rewrite(dialogue):
 
 # Initial context-free prompt
 if st.session_state.stage == "goal_select":
+    # Prompt user with intuitive button grid before asking for context
     st.subheader("What best describes your situation?")
     st.markdown("Pick the one that fits best, and I’ll guide you from there.")
 
@@ -123,7 +132,7 @@ if st.session_state.stage == "goal_select":
         st.session_state.stage = "initial_input"
         st.rerun()
 
-elif st.session_state.stage == "initial_input":
+elelif st.session_state.stage == "initial_input":
     st.subheader("🧭 What’s going on?")
     user_input = st.text_area("Briefly describe the situation, what's been said (if anything), and what you’re hoping to achieve.")
     if st.button("Analyze My Situation"):
@@ -137,8 +146,8 @@ elif st.session_state.stage == "initial_input":
 # Display feedback and let user respond
 elif st.session_state.stage == "user_reply":
     st.subheader("Step 2: What do you want to say next?")
-    st.markdown(f"**Detected Situation:** {st.session_state.situation_type}")
-    st.markdown(f"**Your Communication Style:** {st.session_state.user_style}")
+    st.markdown(f"**Detected Situation:** {st.session_state.situation_type.replace('Situation: ', '')}")
+    st.markdown(f"**Your Communication Style:** {st.session_state.user_style.replace('User style: ', '')}")
 
     reply = st.text_area("Draft your next message or response:")
     if st.button("Polish My Message"):
