@@ -20,6 +20,85 @@ if "dialogue" not in st.session_state:
     st.session_state.dialogue = []
 if "stage" not in st.session_state:
     st.session_state.stage = "goal_select"
+
+if st.session_state.stage == "goal_select":
+    st.subheader("Choose your goal:")
+    cols = st.columns(2)
+
+    if cols[0].button("🥊 Fight Productively"):
+        st.session_state.stage = "debate_moderator"
+        st.session_state.fight_stage = "user_a_input"
+        st.session_state.fight_history = []
+        st.session_state.current_user = "A"
+        st.rerun()
+
+    cols[1].button("🧯 Cool things down (Coming soon)", disabled=True)
+    cols[0].button("🧠 Make my case—no fight (Coming soon)", disabled=True)
+    cols[1].button("📱 Online heated (Coming soon)", disabled=True)
+    cols[0].button("❤️ It's personal (Coming soon)", disabled=True)
+    cols[1].button("😤 I need to vent (Coming soon)", disabled=True)
+
+elif st.session_state.stage == "debate_moderator":
+    st.header("🥊 Debate Moderator Mode")
+
+    current_user = st.session_state.current_user
+    other_user = "B" if current_user == "A" else "A"
+
+    if st.session_state.fight_stage == f"user_{current_user.lower()}_input":
+        st.subheader(f"🗣️ User {current_user}: Your Argument")
+
+        if st.session_state.fight_history:
+            last_polished = st.session_state.fight_history[-1]["polished"]
+            st.markdown(f"**User {other_user}'s last response:**")
+            st.info(last_polished)
+
+        user_text = st.text_area("Enter your side of the debate:")
+        if st.button("Get My Private Feedback"):
+            st.session_state.fight_history.append({"user": current_user, "content": user_text})
+            st.session_state.fight_stage = f"user_{current_user.lower()}_feedback"
+            st.rerun()
+
+    elif st.session_state.fight_stage == f"user_{current_user.lower()}_feedback":
+        st.subheader(f"🔍 User {current_user}: Feedback & Fact Check")
+
+        feedback = call_gpt([
+            {"role": "system", "content": (
+                "You're moderating a debate. Fact-check the user's input, steelman the opposing view, and offer a clear, persuasive rewrite."
+            )},
+            {"role": "user", "content": st.session_state.fight_history[-1]["content"]}
+        ])
+
+        st.markdown("### 🧠 Private Feedback:")
+        st.write(feedback)
+
+        polished_response = st.text_area("Polished version of your argument:", feedback)
+
+        if st.button(f"Finalize and pass to User {other_user}"):
+            st.session_state.fight_history[-1]["polished"] = polished_response
+            st.session_state.current_user = other_user
+            st.session_state.fight_stage = f"user_{other_user.lower()}_input"
+            st.rerun()
+
+    with st.sidebar:
+        st.header("Debate Tools")
+        if st.button("🧭 View Debate Summary"):
+            history = "
+
+".join([f"{entry['user']}: {entry['polished']}" for entry in st.session_state.fight_history if 'polished' in entry])
+            summary = call_gpt([
+                {"role": "system", "content": "Provide a neutral summary of the ongoing debate highlighting points of agreement, disagreement, and potential resolution points."},
+                {"role": "user", "content": history}
+            ])
+            st.markdown(summary)
+
+        if st.button("🔄 Restart Debate"):
+            st.session_state.stage = "goal_select"
+            st.session_state.fight_stage = None
+            st.session_state.fight_history = []
+            st.session_state.current_user = "A"
+            st.rerun()
+
+        st.caption("All feedback remains confidential. Your opponent can't see your inputs or the feedback you receive.")    st.session_state.stage = "goal_select"
 if "fight_stage" not in st.session_state:
     st.session_state.fight_stage = None
 if "fight_history" not in st.session_state:
