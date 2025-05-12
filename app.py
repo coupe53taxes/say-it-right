@@ -93,7 +93,7 @@ elif st.session_state.stage == "debate_moderator":
                 {"role": "system", "content": "Provide a neutral summary of the ongoing debate highlighting points of agreement, disagreement, and potential resolution points."},
                 {"role": "user", "content": history}
             ])
-                    st.markdown(summary)
+                            st.markdown(summary)
 
         if st.button("🔄 Restart Debate"):
             st.session_state.stage = "goal_select"
@@ -188,7 +188,7 @@ elif st.session_state.stage == "debate_moderator":
                 {"role": "system", "content": "Provide a neutral summary of the ongoing debate highlighting points of agreement, disagreement, and potential resolution points."},
                 {"role": "user", "content": history}
             ])
-            st.markdown(summary)
+                    st.markdown(summary)
 
         if st.button("🔄 Restart Debate"):
             st.session_state.stage = "goal_select"
