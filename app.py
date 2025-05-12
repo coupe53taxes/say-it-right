@@ -64,8 +64,7 @@ elif st.session_state.stage == "debate_moderator":
             st.rerun()
 
     elif st.session_state.fight_stage == f"user_{current_user.lower()}_feedback":
-        st.subheader(f
-        "🔍 User {current_user}: Feedback & Fact Check")
+        st.subheader(f"🔍 User {current_user}: Feedback & Fact Check")
 
         feedback = call_gpt([
             {"role": "system", "content": (
