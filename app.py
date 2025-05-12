@@ -85,7 +85,7 @@ elif st.session_state.stage == "debate_moderator":
 
     with st.sidebar:
     st.header("Debate Tools")
-        if st.button("🧭 View Debate Summary"):
+if st.button("🧭 View Debate Summary"):
             history = """
 
 ".join([f"{entry['user']}: {entry['polished']}" for entry in st.session_state.fight_history if 'polished' in entry])"""
