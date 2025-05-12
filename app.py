@@ -49,21 +49,14 @@ def classify_situation(user_input):
         st.rerun()
 
     user_goal = st.session_state.user_goal
-    convo_description = (
-        f"User goal: {user_goal}
+    convo_description = f"""User goal: {user_goal}
 
-"
-        f"User input: {user_input}
+User input: {user_input}
 
-"
-        "Please respond with:
-"
-        "Situation: [brief summary of what’s going on]
-"
-        "Ongoing conversation: [Yes/No]
-"
-        "User style: [short phrase]"
-    )
+Please respond with:
+Situation: [brief summary of what’s going on]
+Ongoing conversation: [Yes/No]
+User style: [short phrase]"""
 
     prompt = [
         {
