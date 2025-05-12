@@ -95,6 +95,7 @@ elif st.session_state.stage == "debate_moderator":
 ])
 st.markdown(summary)
 
+        
         if st.button("🔄 Restart Debate"):
             st.session_state.stage = "goal_select"
             st.session_state.fight_stage = None
