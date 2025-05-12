@@ -33,6 +33,7 @@ st.title("Say It Right")
 st.caption("Diffuse conflict. Preserve truth. Protect what matters.")
 
 # GPT helper
+
 def call_gpt(messages):
     try:
         response = client.chat.completions.create(model="gpt-4o", messages=messages)
@@ -92,14 +93,93 @@ elif st.session_state.stage == "proposition_confirm":
 # Handoff to First User
 elif st.session_state.stage == "pass_to_first_user":
     st.header("Pass to First Debater")
-    st.markdown("Pass the device to **User A**. Click below when ready.")
+    st.markdown("Pass the device to the first debater. Click below when you're ready.")
     if st.button(f"I'm {st.session_state.user_A_name}, Continue"):
-        st.session_state.stage = "first_user_private"
+        st.session_state.current_user = st.session_state.user_A_name
+        st.session_state.stage = "private_feedback"
         st.rerun()
 
-# Placeholder for first user private screen (to be implemented)
-elif st.session_state.stage == "first_user_private":
-    st.write("This is where the private interaction for User A would begin.")
-    if st.button("Back to Goal Selection"):
-        st.session_state.stage = "goal_select"
+# Handoff to Second User
+elif st.session_state.stage == "pass_to_second_user":
+    st.header("Pass to Second Debater")
+    st.markdown("Pass the device to the second debater. Click below when you're ready.")
+    if st.button(f"I'm {st.session_state.user_B_name}, Continue"):
+        st.session_state.current_user = st.session_state.user_B_name
+        st.session_state.stage = "private_feedback"
+        st.rerun()
+
+# Private Feedback Stage
+elif st.session_state.stage == "private_feedback":
+    user = st.session_state.current_user
+    opponent = st.session_state.user_B_name if user == st.session_state.user_A_name else st.session_state.user_A_name
+
+    st.subheader(f"{user}, briefly explain why you believe your view is correct:")
+    argument = st.text_area("Your Justification:")
+
+    if st.button("Get Guidance"):
+        st.session_state.fight_history.append({"user": user, "content": argument})
+
+        prompt = [
+            {"role": "system", "content": f"You're a concise, fair debate coach. Return three labeled items:\n1. One-sentence fact check if needed.\n2. One-sentence steelman of {opponent}'s likely view.\n3. One short, tactful response the user could use. Label each clearly."},
+            {"role": "user", "content": argument}
+        ]
+        feedback = call_gpt(prompt)
+        polished = feedback.split("Polished Reply:")[-1].strip()
+
+        st.markdown("---")
+        st.markdown("### Feedback")
+        st.markdown(feedback.split("Polished Reply:")[0].strip())
+
+        st.markdown("---")
+        st.subheader("Your Improved Response")
+        final = st.text_area("Edit before submitting:", value=polished, height=100)
+
+        if st.button("Submit and Pass"):
+            st.session_state.fight_history[-1]["polished"] = final
+            if user == st.session_state.user_A_name:
+                st.session_state.current_user = st.session_state.user_B_name
+                st.session_state.stage = "pass_to_second_user"
+            else:
+                st.session_state.current_user = st.session_state.user_A_name
+                st.session_state.stage = "pass_to_first_user"
+            st.rerun()
+
+# Sidebar Tools
+if st.session_state.stage.startswith("pass_to"):
+    with st.sidebar:
+        st.header("Debate Tools")
+
+        if st.button("🧾 View Debate Summary"):
+            history = "\n\n".join([f"{entry['user']}: {entry['polished']}" for entry in st.session_state.fight_history if 'polished' in entry])
+            summary = call_gpt([
+                {"role": "system", "content": "Provide a brief, fair summary of the debate's progress and any areas of agreement or disagreement."},
+                {"role": "user", "content": history}
+            ])
+            st.markdown(summary)
+
+        if st.button("🏁 End Debate"):
+            st.session_state.stage = "wrap_up"
+            st.rerun()
+
+# Wrap-Up Phase
+elif st.session_state.stage == "wrap_up":
+    st.subheader("Debate Wrap-Up")
+    history = "\n\n".join([f"{entry['user']}: {entry['polished']}" for entry in st.session_state.fight_history if 'polished' in entry])
+
+    summary = call_gpt([
+        {"role": "system", "content": "Offer a thoughtful wrap-up of the debate with individual suggestions for each participant."},
+        {"role": "user", "content": history}
+    ])
+    st.markdown(summary)
+
+    if st.button("🤖 Let AI pick a winner (just for fun)"):
+        verdict = call_gpt([
+            {"role": "system", "content": "Based on the arguments shared, pick the side that made the stronger case. Be fair but brief."},
+            {"role": "user", "content": history}
+        ])
+        st.success(verdict)
+
+    if st.button("🔄 Restart"):
+        for key in list(st.session_state.keys()):
+            del st.session_state[key]
         st.rerun()
