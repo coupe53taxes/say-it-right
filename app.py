@@ -87,12 +87,13 @@ elif st.session_state.stage == "debate_moderator":
     st.header("Debate Tools")
     if st.button("🧭 View Debate Summary"):
         if st.session_state.fight_history:
-            history = "
+            history = """
 
 ".join([
                 f"{entry['user']}: {entry['polished']}"
                 for entry in st.session_state.fight_history if 'polished' in entry
             ])
+            """
             summary = call_gpt([
                 {"role": "system", "content": "Provide a neutral summary of the ongoing debate highlighting points of agreement, disagreement, and potential resolution points."},
                 {"role": "user", "content": history}
