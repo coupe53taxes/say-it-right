@@ -127,7 +127,7 @@ if st.session_state.stage == "goal_select":
         st.session_state.stage = "initial_input"
         st.rerun()
 
-elelif st.session_state.stage == "initial_input":
+elif st.session_state.stage == "initial_input":
     st.subheader("🧭 What’s going on?")
     user_input = st.text_area("Briefly describe the situation, what's been said (if anything), and what you’re hoping to achieve.")
     if st.button("Analyze My Situation"):
