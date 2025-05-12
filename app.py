@@ -49,21 +49,25 @@ elif st.session_state.stage == "debate_moderator":
     other_user = "B" if current_user == "A" else "A"
 
     if st.session_state.fight_stage == f"user_{current_user.lower()}_input":
-        st.subheader(f"🗣️ User {current_user}: Your Argument")
+        st.subheader(f
+        "🗣️ User {current_user}: Your Argument")
 
         if st.session_state.fight_history:
             last_polished = st.session_state.fight_history[-1]["polished"]
-            st.markdown(f"**User {other_user}'s last response:**")
+            st.markdown(f
+            "**User {other_user}'s last response:**")
             st.info(last_polished)
 
         user_text = st.text_area("Enter your side of the debate:")
         if st.button("Get My Private Feedback"):
             st.session_state.fight_history.append({"user": current_user, "content": user_text})
-            st.session_state.fight_stage = f"user_{current_user.lower()}_feedback"
+            st.session_state.fight_stage = f
+            "user_{current_user.lower()}_feedback"
             st.rerun()
 
     elif st.session_state.fight_stage == f"user_{current_user.lower()}_feedback":
-        st.subheader(f"🔍 User {current_user}: Feedback & Fact Check")
+        st.subheader(f
+        "🔍 User {current_user}: Feedback & Fact Check")
 
         feedback = call_gpt([
             {"role": "system", "content": (
@@ -80,77 +84,81 @@ elif st.session_state.stage == "debate_moderator":
         if st.button(f"Finalize and pass to User {other_user}"):
             st.session_state.fight_history[-1]["polished"] = polished_response
             st.session_state.current_user = other_user
-            st.session_state.fight_stage = f"user_{other_user.lower()}_input"
+            st.session_state.fight_stage = f
+            "user_{other_user.lower()}_input"
             st.rerun()
 
     with st.sidebar():
-    st.header("Debate Tools")
+        st.header("Debate Tools")
     if st.button("🧭 View Debate Summary"):
         if st.session_state.fight_history:
-            history = 
+            history =
 
 ""
 
 "
 
 ".join([
-                f"{entry['user']}: {entry['polished']}"
-                for entry in st.session_state.fight_history if 'polished' in entry
-            ])
-            summary = call_gpt([
-                {"role": "system", "content": "Provide a neutral summary of the ongoing debate highlighting points of agreement, disagreement, and potential resolution points."},
-                {"role": "user", "content": history}
-            ])
-            st.markdown(summary)
+f
+"{entry['user']}: {entry['polished']}"
+for entry in st.session_state.fight_history if 'polished' in entry
+    ])
+summary = call_gpt([
+{"role": "system",
+ "content": "Provide a neutral summary of the ongoing debate highlighting points of agreement, disagreement, and potential resolution points."},
+{"role": "user", "content": history}
+])
+st.markdown(summary)
 
-    if st.button("🔄 Restart Debate"):
-        st.session_state.stage = "goal_select"
-        st.session_state.fight_stage = None
-        st.session_state.fight_history = []
-        st.session_state.current_user = "A"
-        st.rerun()
+if st.button("🔄 Restart Debate"):
+    st.session_state.stage = "goal_select"
+st.session_state.fight_stage = None
+st.session_state.fight_history = []
+st.session_state.current_user = "A"
+st.rerun()
 
-    st.caption("All feedback remains confidential. Your opponent can't see your inputs or the feedback you receive.")
+st.caption("All feedback remains confidential. Your opponent can't see your inputs or the feedback you receive.")
 
 ".join([
-                f"{entry['user']}: {entry['polished']}" 
-                for entry in st.session_state.fight_history if 'polished' in entry
-            ])
-            summary = call_gpt([
-                {"role": "system", "content": "Provide a neutral summary of the ongoing debate highlighting points of agreement, disagreement, and potential resolution points."},
-                {"role": "user", "content": history}
-            ])
-            st.markdown(summary)
+f
+"{entry['user']}: {entry['polished']}"
+for entry in st.session_state.fight_history if 'polished' in entry
+])
+summary = call_gpt([
+{"role": "system", "content": "Provide a neutral summary of the ongoing debate highlighting points of agreement, disagreement, and potential resolution points."},
+{"role": "user", "content": history}
+])
+st.markdown(summary)
 
-    if st.button("🔄 Restart Debate"):
-        st.session_state.stage = "goal_select"
-        st.session_state.fight_stage = None
-        st.session_state.fight_history = []
-        st.session_state.current_user = "A"
-        st.rerun()
+if st.button("🔄 Restart Debate"):
+    st.session_state.stage = "goal_select"
+st.session_state.fight_stage = None
+st.session_state.fight_history = []
+st.session_state.current_user = "A"
+st.rerun()
 
-    st.caption("All feedback remains confidential. Your opponent can't see your inputs or the feedback you receive.")
-    st.header("Debate Tools")
+st.caption("All feedback remains confidential. Your opponent can't see your inputs or the feedback you receive.")
+st.header("Debate Tools")
 if st.button("🧭 View Debate Summary"):
-            history = """
+    history = """
 
 ".join([f"{entry['user']}: {entry['polished']}" for entry in st.session_state.fight_history if 'polished' in entry])"""
-    summary = call_gpt([
-    {"role": "system", "content": "Provide a neutral summary of the ongoing debate highlighting points of agreement, disagreement, and potential resolution points."},
+summary = call_gpt([
+    {"role": "system",
+     "content": "Provide a neutral summary of the ongoing debate highlighting points of agreement, disagreement, and potential resolution points."},
     {"role": "user", "content": history}
 ])
 st.markdown(summary)
 
-        
-    
-    if st.button("🔄 Restart Debate"):
-            st.session_state.stage = "goal_select"
-            st.session_state.fight_stage = None
-            st.session_state.fight_history = []
-            st.session_state.current_user = "A"
-            st.rerun()
+if st.button("🔄 Restart Debate"):
+    st.session_state.stage = "goal_select"
+st.session_state.fight_stage = None
+st.session_state.fight_history = []
+st.session_state.current_user = "A"
+st.rerun()
 
-        st.caption("All feedback remains confidential. Your opponent can't see your inputs or the feedback you receive.")    st.session_state.stage = "goal_select"
+st.caption("All feedback remains confidential. Your opponent can't see your inputs or the feedback you receive.")
+st.session_state.stage = "goal_select"
 if "fight_stage" not in st.session_state:
     st.session_state.fight_stage = None
 if "fight_history" not in st.session_state:
@@ -158,12 +166,15 @@ if "fight_history" not in st.session_state:
 if "current_user" not in st.session_state:
     st.session_state.current_user = "A"
 
-# GPT Call Helper
+    # GPT Call Helper
+
+
 def call_gpt(messages):
     from openai import OpenAI
     client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
     response = client.chat.completions.create(model="gpt-4o", messages=messages)
     return response.choices[0].message.content.strip()
+
 
 # Icon Grid
 if st.session_state.stage == "goal_select":
@@ -190,22 +201,26 @@ elif st.session_state.stage == "debate_moderator":
     other_user = "B" if current_user == "A" else "A"
 
     if st.session_state.fight_stage == f"user_{current_user.lower()}_input":
-        st.subheader(f"🗣️ User {current_user}: Your Argument")
+        st.subheader(f
+        "🗣️ User {current_user}: Your Argument")
 
         if st.session_state.fight_history:
             last_polished = st.session_state.fight_history[-1]["polished"]
-            st.markdown(f"**User {other_user}'s last response:**")
+            st.markdown(f
+            "**User {other_user}'s last response:**")
             st.info(last_polished)
 
         user_text = st.text_area("Enter your side of the debate:")
         if st.button("Get My Private Feedback"):
             st.session_state.fight_history.append({"user": current_user, "content": user_text})
-            st.session_state.fight_stage = f"user_{current_user.lower()}_feedback"
+            st.session_state.fight_stage = f
+            "user_{current_user.lower()}_feedback"
             st.rerun()
 
     # GPT feedback
     elif st.session_state.fight_stage == f"user_{current_user.lower()}_feedback":
-        st.subheader(f"🔍 User {current_user}: Feedback & Fact Check")
+        st.subheader(f
+        "🔍 User {current_user}: Feedback & Fact Check")
 
         feedback = call_gpt([
             {"role": "system", "content": (
@@ -222,7 +237,8 @@ elif st.session_state.stage == "debate_moderator":
         if st.button(f"Finalize and pass to User {other_user}"):
             st.session_state.fight_history[-1]["polished"] = polished_response
             st.session_state.current_user = other_user
-            st.session_state.fight_stage = f"user_{other_user.lower()}_input"
+            st.session_state.fight_stage = f
+            "user_{other_user.lower()}_input"
             st.rerun()
 
     # Optional Summary
@@ -231,29 +247,34 @@ elif st.session_state.stage == "debate_moderator":
         if st.button("🧭 View Debate Summary"):
             history = "
 
-".join([f"{entry['user']}: {entry['polished']}" for entry in st.session_state.fight_history if 'polished' in entry])
-            summary = call_gpt([
-                {"role": "system", "content": "Provide a neutral summary of the ongoing debate highlighting points of agreement, disagreement, and potential resolution points."},
-                {"role": "user", "content": history}
-            ])
-                    st.markdown(summary)
+".join([f"
+{entry['user']}: {entry['polished']}
+" for entry in st.session_state.fight_history if 'polished' in entry])
+summary = call_gpt([
+    {"role": "system",
+     "content": "Provide a neutral summary of the ongoing debate highlighting points of agreement, disagreement, and potential resolution points."},
+    {"role": "user", "content": history}
+])
+st.markdown(summary)
 
-        if st.button("🔄 Restart Debate"):
-            st.session_state.stage = "goal_select"
-            st.session_state.fight_stage = None
-            st.session_state.fight_history = []
-            st.session_state.current_user = "A"
-            st.rerun()
-
-        st.caption("All feedback remains confidential. Your opponent can't see your inputs or the feedback you receive.")    st.session_state.stage = "goal_select"
+if st.button("🔄 Restart Debate"):
     st.session_state.stage = "goal_select"
-    st.session_state.stage = "context_input"
+    st.session_state.fight_stage = None
+    st.session_state.fight_history = []
+    st.session_state.current_user = "A"
+    st.rerun()
+
+st.caption("All feedback remains confidential. Your opponent can't see your inputs or the feedback you receive.")
+st.session_state.stage = "goal_select"
+st.session_state.stage = "goal_select"
+st.session_state.stage = "context_input"
 if "show_map" not in st.session_state:
     st.session_state.show_map = False
 if "situation_type" not in st.session_state:
     st.session_state.situation_type = ""
 if "user_style" not in st.session_state:
     st.session_state.user_style = ""
+
 
 # GPT call helper
 
@@ -265,7 +286,9 @@ def call_gpt(messages):
         )
         return response.choices[0].message.content.strip()
     except Exception as e:
-        return f"Error: {e}"
+        return f
+        "Error: {e}"
+
 
 # Analyze user's situation input
 
@@ -275,7 +298,8 @@ def classify_situation(user_input):
         st.rerun()
 
     user_goal = st.session_state.user_goal
-    convo_description = f"""User goal: {user_goal}
+    convo_description = f
+    """User goal: {user_goal}
 
 User input: {user_input}
 
@@ -299,19 +323,23 @@ User style: [short phrase]"""
     ]
     return call_gpt(prompt)
 
+
 # Generate rewrite using learned communication style
 
 def generate_rewrite(dialogue):
     rewrite_prompt = [
         {"role": "system", "content": (
-            f"You are a communication assistant that rewrites emotionally intense or unclear messages into tactful, truthful, and constructive ones.\n"
-            f"Preserve the user's core intent and match their natural communication style: {st.session_state.user_style}.\n"
-            "Soften exaggerations or insults. Clarify any factual claims gently."
-        )},
-        *dialogue,
-        {"role": "user", "content": "Rewrite my last message in a tactful, emotionally constructive way."}
+            f
+         "You are a communication assistant that rewrites emotionally intense or unclear messages into tactful, truthful, and constructive ones.\n"
+             f
+         "Preserve the user's core intent and match their natural communication style: {st.session_state.user_style}.\n"
+         "Soften exaggerations or insults. Clarify any factual claims gently."
+    )},
+    *dialogue,
+    {"role": "user", "content": "Rewrite my last message in a tactful, emotionally constructive way."}
     ]
     return call_gpt(rewrite_prompt)
+
 
 # Initial context-free prompt
 if st.session_state.stage == "goal_select":
@@ -355,7 +383,8 @@ if st.session_state.stage == "goal_select":
 
 elif st.session_state.stage == "context_input":
     st.subheader("🧭 What’s going on?")
-    user_input = st.text_area("Briefly describe the situation, what's been said (if anything), and what you’re hoping to achieve.")
+    user_input = st.text_area(
+        "Briefly describe the situation, what's been said (if anything), and what you’re hoping to achieve.")
     if st.button("Analyze My Situation"):
         st.session_state.dialogue.append({"role": "user", "content": user_input})
         classification = classify_situation(user_input)
@@ -367,8 +396,10 @@ elif st.session_state.stage == "context_input":
 # Display feedback and let user respond
 elif st.session_state.stage == "user_reply":
     st.subheader("Step 2: What do you want to say next?")
-    st.markdown(f"**Detected Situation:** {st.session_state.situation_type.replace('Situation: ', '')}")
-    st.markdown(f"**Your Communication Style:** {st.session_state.user_style.replace('User style: ', '')}")
+    st.markdown(f
+    "**Detected Situation:** {st.session_state.situation_type.replace('Situation: ', '')}")
+    st.markdown(f
+    "**Your Communication Style:** {st.session_state.user_style.replace('User style: ', '')}")
 
     reply = st.text_area("Draft your next message or response:")
     if st.button("Polish My Message"):
@@ -391,8 +422,10 @@ elif st.session_state.stage == "rewrite":
     email_body = st.session_state.rewrite_response.replace(" ", "%20").replace("\n", "%0A")
     sms_body = st.session_state.rewrite_response.replace(" ", "%20").replace("\n", "%0A")
 
-    st.markdown(f"[✉️ Email](mailto:?subject=Suggested%20Response&body={email_body})")
-    st.markdown(f"[📱 SMS](sms:?body={sms_body})")
+    st.markdown(f
+    "[✉️ Email](mailto:?subject=Suggested%20Response&body={email_body})")
+    st.markdown(f
+    "[📱 SMS](sms:?body={sms_body})")
 
     if st.button("🔁 Start Over"):
         st.session_state.dialogue = []
