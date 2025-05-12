@@ -48,9 +48,7 @@ def generate_convo_map(dialogue):
     {
         "role": "user",
         "content": (
-            "The user's communication goal is: " + st.session_state.user_goal + ".
-
-"
+            "The user's communication goal is: " + st.session_state.user_goal + "
 
 "
             + "Here's the conversation so far:
@@ -60,7 +58,8 @@ def generate_convo_map(dialogue):
 "
             + "Please create a simple flow description and a one-paragraph summary."
         )
-    }.
+    }
+].
 
 Here's the conversation so far:
 
