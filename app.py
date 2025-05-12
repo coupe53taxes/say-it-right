@@ -53,8 +53,6 @@ def classify_situation(user_input):
         "User goal: " + user_goal + "
 
 "
-
-"
         + "User input: " + user_input + "
 
 "
