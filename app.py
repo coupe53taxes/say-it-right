@@ -42,16 +42,10 @@ def call_gpt(messages):
 def generate_convo_map(dialogue):
     user_goal = st.session_state.user_goal
     convo_text = (
-        f"The user's communication goal is: {user_goal}.
-
-"
-        f"Here’s the conversation so far:
-
-{dialogue}
-
-"
-        "Please create a simple flow description and a one-paragraph summary."
-    )
+    f"The user's communication goal is: {user_goal}.\n\n"
+    f"Here's the conversation so far:\n\n{dialogue}\n\n"
+    "Please create a simple flow description and a one-paragraph summary."
+)
 
     map_prompt = [
         {
