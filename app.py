@@ -42,8 +42,14 @@ def call_gpt(messages):
 def generate_convo_map(dialogue):
     user_goal = st.session_state.user_goal
     convo_text = (
-        f"The user's communication goal is: {user_goal}.\n\n"
-        f"Here’s the conversation so far:\n\n{dialogue}\n\n"
+        f"The user's communication goal is: {user_goal}.
+
+"
+        f"Here’s the conversation so far:
+
+{dialogue}
+
+"
         "Please create a simple flow description and a one-paragraph summary."
     )
 
@@ -160,6 +166,14 @@ elif st.session_state.stage == "analyze":
 # Step 4 – User's intended reply
 elif st.session_state.stage == "user_reply":
     st.subheader("Step 4: Your next move")
+
+    # Optional insight on the last message from interlocutor
+    if len(st.session_state.dialogue) >= 1 and "Interlocutor reply:" in st.session_state.dialogue[-1]["content"]:
+        with st.spinner("Analyzing the latest reply for tone, meaning, and subtext..."):
+            interlocutor_analysis = analyze_turn(st.session_state.dialogue)
+        st.markdown("### 🧠 Insight on their last message:")
+        st.markdown(interlocutor_analysis)
+
     reply = st.text_area("What are you planning to say next?")
     if st.button("Polish and optimize my response"):
         st.session_state.dialogue.append({"role": "user", "content": f"User’s planned message: {reply}"})
@@ -176,6 +190,10 @@ elif st.session_state.stage == "rewrite":
         st.session_state.rewrite_response = rewrite
 
     st.markdown("#### Here's a calmer, clearer version you might send:")
+    last_insight = analyze_turn(st.session_state.dialogue)
+    st.markdown("##### 🧠 Contextual Insight:")
+    st.markdown(last_insight)
+
     st.text_area("Polished Reply:", value=st.session_state.rewrite_response, height=120)
 
     email_body = st.session_state.rewrite_response.replace(" ", "%20").replace("\n", "%0A")
