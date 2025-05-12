@@ -1,5 +1,4 @@
 # Interactive Streamlit App: Context-Aware Communication Assistant
-# Ensure explicit, correct session state initialization
 if "stage" not in st.session_state or st.session_state.stage == "initial_input":
     st.session_state.stage = "goal_select"
     st.session_state.fight_stage = None
@@ -87,10 +86,10 @@ elif st.session_state.stage == "debate_moderator":
     with st.sidebar:
         st.header("Debate Tools")
         if st.button("🧭 View Debate Summary"):
-            history = "
+            history = """
 
-".join([f"{entry['user']}: {entry['polished']}" for entry in st.session_state.fight_history if 'polished' in entry])
-            summary = call_gpt([
+".join([f"{entry['user']}: {entry['polished']}" for entry in st.session_state.fight_history if 'polished' in entry])"""
+    summary = call_gpt([
                 {"role": "system", "content": "Provide a neutral summary of the ongoing debate highlighting points of agreement, disagreement, and potential resolution points."},
                 {"role": "user", "content": history}
             ])
