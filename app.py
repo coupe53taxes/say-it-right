@@ -41,8 +41,24 @@ def call_gpt(messages):
 # Generate map description
 def generate_convo_map(dialogue):
     map_prompt = [
-    {"role": "system", "content": "You summarize and visually map how a conversation is progressing, especially arguments or disagreements. Include the user's communication goal."},
-    {"role": "user", "content": f"The user's communication goal is: {st.session_state.user_goal}.
+    {
+        "role": "system",
+        "content": "You summarize and visually map how a conversation is progressing, especially arguments or disagreements. Include the user's communication goal."
+    },
+    {
+        "role": "user",
+        "content": (
+            f"The user's communication goal is: {st.session_state.user_goal}.
+
+"
+            f"Here's the conversation so far:
+
+{dialogue}
+
+"
+            "Please create a simple flow description and a one-paragraph summary."
+        )
+    }.
 
 Here's the conversation so far:
 
