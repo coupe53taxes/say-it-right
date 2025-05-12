@@ -21,6 +21,10 @@ if "users" not in st.session_state:
     st.session_state.users = {}
 if "topic" not in st.session_state:
     st.session_state.topic = ""
+if "current_input" not in st.session_state:
+    st.session_state.current_input = ""
+if "current_feedback" not in st.session_state:
+    st.session_state.current_feedback = ""
 
 # GPT helper
 def call_gpt(messages):
@@ -80,11 +84,23 @@ def user_input_screen():
     if st.button("Get feedback and refine response"):
         if input_text:
             feedback = call_gpt([
-                {"role": "system", "content": f"""You are helping {current} in a debate about "{st.session_state.topic}". Their stance: {st.session_state.users[current_key]['stance']}. Opponent ({other}) stance: {st.session_state.users[other_key]['stance']}. Fact-check, steelman opponent’s view, and suggest improvements clearly."""},
+                {"role": "system", "content": f"""
+                    You are helping {current} in a debate about "{st.session_state.topic}".
+                    Their stance: {st.session_state.users[current_key]['stance']}.
+                    Opponent ({other}) stance: {st.session_state.users[other_key]['stance']}.
+                    Provide:
+                    1. A fact-check of their argument
+                    2. A steelman of the opponent's view
+                    3. A persuasive rewrite of their message
+                """},
+                {"role": "user", "content": input_text}
+            ])
+            rewrite = call_gpt([
+                {"role": "system", "content": "Return ONLY a persuasive rewrite of the user's message. No explanations, labels, or headings."},
                 {"role": "user", "content": input_text}
             ])
             st.session_state.current_feedback = feedback
-            st.session_state.current_input = input_text
+            st.session_state.current_input = rewrite
             st.session_state.stage = "feedback"
             st.rerun()
         else:
@@ -96,12 +112,7 @@ def feedback_screen():
     st.header(f"🔍 {current}'s Feedback & Suggestions")
     st.write(feedback)
 
-    polished = call_gpt([
-        {"role": "system", "content": f"Polish the user's message for clarity, respectfulness, and persuasiveness without including explanatory notes."},
-        {"role": "user", "content": st.session_state.current_input}
-    ])
-
-    polished_response = st.text_area("Suggested refined response (edit if desired):", polished)
+    polished_response = st.text_area("Refine or accept this suggested message:", st.session_state.current_input)
 
     if st.button("Lock in my response"):
         st.session_state.debate_history.append({
@@ -139,11 +150,12 @@ def wrapup_screen():
     st.markdown(f"[📱 Share via SMS](sms:?body={email_body})")
 
     if st.button("🔄 New Debate"):
-        for key in ["stage", "debate_history", "current_user", "users", "topic"]:
-            del st.session_state[key]
+        for key in ["stage", "debate_history", "current_user", "users", "topic", "current_feedback", "current_input"]:
+            if key in st.session_state:
+                del st.session_state[key]
         st.rerun()
 
-# Main flow control
+# Flow controller
 if st.session_state.stage == "setup":
     setup_screen()
 elif st.session_state.stage == "handoff":
