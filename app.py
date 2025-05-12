@@ -87,7 +87,7 @@ elif st.session_state.stage == "debate_moderator":
     st.header("Debate Tools")
     if st.button("🧭 View Debate Summary"):
         if st.session_state.fight_history:
-            history = "
+            history = """
 
 ".join([
                 f"{entry['user']}: {entry['polished']}" 
@@ -97,6 +97,7 @@ elif st.session_state.stage == "debate_moderator":
                 {"role": "system", "content": "Provide a neutral summary of the ongoing debate highlighting points of agreement, disagreement, and potential resolution points."},
                 {"role": "user", "content": history}
             ])
+            """
             st.markdown(summary)
 
     if st.button("🔄 Restart Debate"):
