@@ -49,8 +49,7 @@ elif st.session_state.stage == "debate_moderator":
     other_user = "B" if current_user == "A" else "A"
 
     if st.session_state.fight_stage == f"user_{current_user.lower()}_input":
-        st.subheader(f
-        "🗣️ User {current_user}: Your Argument")
+        st.subheader(f"🗣️ User {current_user}: Your Argument")
 
         if st.session_state.fight_history:
             last_polished = st.session_state.fight_history[-1]["polished"]
