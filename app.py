@@ -59,20 +59,11 @@ def classify_situation(user_input):
     {
         "role": "user",
         "content": (
-            "User goal: " + user_goal + "
-
-"
-
-"
-            + "User input: " + user_input + "
-
-"
-            + "Please respond with:
-"
-            + "Situation: [brief summary of what’s going on]
-"
-            + "Ongoing conversation: [Yes/No]
-"
+            "User goal: " + user_goal + "\n\n"
+            + "User input: " + user_input + "\n\n"
+            + "Please respond with:\n"
+            + "Situation: [brief summary of what’s going on]\n"
+            + "Ongoing conversation: [Yes/No]\n"
             + "User style: [short phrase]"
         )
     }
