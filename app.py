@@ -83,7 +83,8 @@ elif st.session_state.stage == "debate_moderator":
             st.session_state.fight_stage = f"user_{other_user.lower()}_input"
             st.rerun()
 
-    with st.sidebar:
+    with st.sidebar():
+    pass
     st.header("Debate Tools")
 if st.button("🧭 View Debate Summary"):
             history = """
