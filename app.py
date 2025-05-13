@@ -1,4 +1,4 @@
-# Full Integrated Streamlit Debate Moderator App (With Context Retention, Clean Feedback Box, and Custom End Recap)
+# Full Integrated Streamlit Debate Moderator App (Updated)
 
 import streamlit as st
 import os
@@ -8,6 +8,7 @@ from openai import OpenAI
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
+# Page Configuration
 st.set_page_config(page_title="Say It Right", page_icon="✉️")
 
 # Session State Initialization
@@ -31,19 +32,15 @@ def initialize_state():
 
 initialize_state()
 
-# GPT Helper
-
+# GPT Call Helper
 def call_gpt(messages):
-    try:
-        response = client.chat.completions.create(
-            model="gpt-4o",
-            messages=messages
-        )
-        return response.choices[0].message.content.strip()
-    except Exception as e:
-        return f"[Error calling GPT: {e}]"
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=messages
+    )
+    return response.choices[0].message.content.strip()
 
-# Goal Selection Grid
+# Goal Selection
 if st.session_state.stage == "goal_select":
     st.title("Say It Right")
     st.caption("Diffuse conflict. Preserve truth. Protect what matters.")
