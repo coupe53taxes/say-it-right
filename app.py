@@ -160,5 +160,8 @@ elif st.session_state.stage == "summary":
 # Sidebar Features
 with st.sidebar:
     st.header("Debate Controls")
-    st.write("Use controls here to end debate or view summary.")
-    st.button("End Debate & View Summary")
+    if st.session_state.stage not in ["summary"]:
+        st.write("Use controls here to end debate or view summary.")
+        if st.button("End Debate & View Summary"):
+            st.session_state.stage = "summary"
+            st.rerun()
