@@ -59,10 +59,12 @@ if st.session_state.stage == "goal_select":
 # Debate Setup
 elif st.session_state.stage == "debate_setup":
     st.header("Set up your debate")
-    st.session_state.user_A_name = st.text_input("User A Name:")
-    st.session_state.user_A_position = st.text_area(f"{st.session_state.user_A_name}'s position:")
-    st.session_state.user_B_name = st.text_input("User B Name:")
-    st.session_state.user_B_position = st.text_area(f"{st.session_state.user_B_name}'s position:")
+
+    # Fix: Use static labels and unique keys to avoid StreamlitDuplicateElementID
+    st.session_state.user_A_name = st.text_input("User A Name:", key="user_A_name_input")
+    st.session_state.user_A_position = st.text_area("Position of User A:", key="user_A_position_input")
+    st.session_state.user_B_name = st.text_input("User B Name:", key="user_B_name_input")
+    st.session_state.user_B_position = st.text_area("Position of User B:", key="user_B_position_input")
     debate_topic = st.text_area("Debate Topic:")
 
     if st.button("Generate Proposition"):
@@ -141,10 +143,6 @@ elif st.session_state.stage == "handoff":
         st.rerun()
 
 # Final Summary Stage
-elif st.sidebar.button("End Debate & View Summary"):
-    st.session_state.stage = "summary"
-    st.rerun()
-
 elif st.session_state.stage == "summary":
     st.header("Debate Summary")
     st.markdown(f"**Proposition:** {st.session_state.debate_prop}")
