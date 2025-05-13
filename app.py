@@ -48,7 +48,7 @@ if st.session_state.stage == "goal_select":
     st.subheader("Choose your situation:")
 
     cols = st.columns(2)
-    if cols[0].button("🍊 Fight Productively"):
+    if cols[0].button("🥊 Fight Productively"):
         st.session_state.stage = "debate_setup"
         st.rerun()
 
@@ -164,7 +164,7 @@ elif st.session_state.stage == "summary":
     debate_summary = call_gpt(summary_prompt)
     st.markdown(debate_summary)
 
-    if st.button("Let AI Decide the Winner"):
+    if st.button("🤖Let AI Decide the Winner"):
         judge_prompt = [{
             "role": "system",
             "content": "Decide who presented the stronger arguments in the following exchange. Explain briefly in 3 sentences or less."
@@ -184,7 +184,7 @@ with st.sidebar:
         st.session_state.summary_mode = not st.session_state.summary_mode
         st.rerun()
 
-    if st.button("🚫 End Debate"):
+    if st.button("🛑 End Debate"):
         st.session_state.stage = "summary"
         st.rerun()
 
