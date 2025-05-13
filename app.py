@@ -104,7 +104,7 @@ elif st.session_state.stage == "private_input":
     if st.button("Get Feedback"):
         feedback_prompt = [{
             "role": "system",
-            "content": "You are a debate assistant helping the user give their strongest reply. You'll receive the debate topic, positions, and the user's current draft. Provide structured feedback: mirror what the user is trying to say, fact-check if needed, steelman the *opponent's* position, flag fallacies, and end with a proposed rewrite."
+            "content": "You are a debate assistant helping the user give their strongest reply. You'll receive the debate topic, positions, and the user's current draft. Provide structured feedback: mirror what the user is trying to say, fact-check if needed, steelman the *opponent's* position, flag fallacies, and end with a proposed response clearly labeled with 'Suggested Response:'."
         }, {
             "role": "user",
             "content": f"Debate topic: {st.session_state.debate_prop}\n\n"
@@ -125,7 +125,7 @@ elif st.session_state.stage == "feedback":
     st.markdown("### Your Feedback")
     st.write(feedback)
 
-    match = re.search(r"(?i)rewrite:\s*(.*)", feedback, re.DOTALL)
+    match = re.search(r"(?i)suggested response:\s*(.*)", feedback, re.DOTALL)
     suggested_reply = match.group(1).strip() if match else ""
     polished_reply = st.text_area("Polished Reply:", value=suggested_reply)
 
