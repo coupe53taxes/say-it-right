@@ -1,128 +1,164 @@
-# Interactive Streamlit App: Context-Aware Communication Assistant
+# Full Integrated Streamlit Debate Moderator App
+
 import streamlit as st
 import os
 from dotenv import load_dotenv
 from openai import OpenAI
 
-# Load environment variables
 load_dotenv()
-
-# Initialize OpenAI client
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-# Session State Initialization
-for key, default in {
-    "stage": "goal_select",
-    "fight_stage": None,
-    "fight_history": [],
-    "current_user": "A",
-    "user_A_name": "User A",
-    "user_B_name": "User B",
-    "user_A_position": "",
-    "user_B_position": "",
-    "debate_topic": "",
-    "debate_prop": "",
-}.items():
-    if key not in st.session_state:
-        st.session_state[key] = default
-
+# Page Configuration
 st.set_page_config(page_title="Say It Right", page_icon="✉️")
-st.title("Say It Right")
-st.caption("Diffuse conflict. Preserve truth. Protect what matters.")
 
-# --- Helper Function ---
+# Session State Initialization
+def initialize_state():
+    keys_defaults = {
+        "stage": "goal_select",
+        "fight_history": [],
+        "debate_prop": "",
+        "user_A_name": "",
+        "user_B_name": "",
+        "user_A_position": "",
+        "user_B_position": "",
+        "current_user": "A",
+        "temp_feedback": "",
+        "temp_input": ""
+    }
+    for key, value in keys_defaults.items():
+        if key not in st.session_state:
+            st.session_state[key] = value
+
+initialize_state()
+
+# GPT Call Helper
 def call_gpt(messages):
-    try:
-        response = client.chat.completions.create(model="gpt-4o", messages=messages)
-        return response.choices[0].message.content.strip()
-    except Exception as e:
-        return f"Error: {e}"
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=messages
+    )
+    return response.choices[0].message.content.strip()
 
-# --- Stage: Goal Selection ---
+# UI - Goal Selection Grid
 if st.session_state.stage == "goal_select":
-    st.subheader("What best describes your situation?")
-    cols1 = st.columns(2)
-    cols2 = st.columns(2)
-    cols3 = st.columns(2)
+    st.title("Say It Right")
+    st.caption("Diffuse conflict. Preserve truth. Protect what matters.")
+    st.subheader("Choose your situation:")
 
-    if cols1[0].button("🥊 Fight Productively"):
+    cols = st.columns(2)
+    if cols[0].button("🥊 Fight Productively"):
         st.session_state.stage = "debate_setup"
         st.rerun()
 
-    cols1[1].button("🧯 Cool things down (Coming soon)", disabled=True)
-    cols2[0].button("🧠 Make my case—no fight (Coming soon)", disabled=True)
-    cols2[1].button("📱 Online heated (Coming soon)", disabled=True)
-    cols3[0].button("❤️ It's personal (Coming soon)", disabled=True)
-    cols3[1].button("😤 I need to vent (Coming soon)", disabled=True)
+    cols[1].button("🧯 Cool things down (Coming soon)", disabled=True)
+    cols[0].button("🧠 Make my case—no fight (Coming soon)", disabled=True)
+    cols[1].button("📱 Online heated (Coming soon)", disabled=True)
+    cols[0].button("❤️ It's personal (Coming soon)", disabled=True)
+    cols[1].button("😤 I need to vent (Coming soon)", disabled=True)
 
-# --- Stage: Debate Setup ---
+# Debate Setup
 elif st.session_state.stage == "debate_setup":
-    st.subheader("Set up your debate")
-    st.session_state.debate_topic = st.text_input("Debate topic:", st.session_state.debate_topic)
-    st.session_state.user_A_name = st.text_input("Name of User A:", st.session_state.user_A_name)
-    st.session_state.user_A_position = st.text_input(f"{st.session_state.user_A_name}'s position:", st.session_state.user_A_position)
-    st.session_state.user_B_name = st.text_input("Name of User B:", st.session_state.user_B_name)
-    st.session_state.user_B_position = st.text_input(f"{st.session_state.user_B_name}'s position:", st.session_state.user_B_position)
+    st.header("Set up your debate")
+    st.session_state.user_A_name = st.text_input("User A Name:")
+    st.session_state.user_A_position = st.text_area(f"{st.session_state.user_A_name}'s position:")
+    st.session_state.user_B_name = st.text_input("User B Name:")
+    st.session_state.user_B_position = st.text_area(f"{st.session_state.user_B_name}'s position:")
+    debate_topic = st.text_area("Debate Topic:")
 
-    if st.button("Continue to Proposition"):
-        st.session_state.stage = "proposition_edit"
+    if st.button("Generate Proposition"):
+        prop_prompt = [{
+            "role": "system",
+            "content": "Generate a neutral debate proposition: 'The disagreement is over whether X is beneficial.'"
+        }, {
+            "role": "user",
+            "content": f"Topic: {debate_topic}\n{st.session_state.user_A_name}: {st.session_state.user_A_position}\n{st.session_state.user_B_name}: {st.session_state.user_B_position}"
+        }]
+        st.session_state.debate_prop = call_gpt(prop_prompt)
+        st.session_state.stage = "proposition_review"
         st.rerun()
 
-# --- Stage: Proposition Generation ---
-elif st.session_state.stage == "proposition_edit":
-    st.subheader("🧭 Let's clarify the disagreement")
-    summary = call_gpt([
-        {"role": "system", "content": "Draft a clear, debate-ready proposition that fairly represents opposing views."},
-        {"role": "user", "content": f"Topic: {st.session_state.debate_topic}\n\nUser A position: {st.session_state.user_A_position}\n\nUser B position: {st.session_state.user_B_position}"}
-    ])
-    st.session_state.debate_prop = st.text_area("Debate Proposition:", summary)
-    if st.button("Pass to First Debater"):
-        st.session_state.stage = "handoff_A"
+# Proposition Review
+elif st.session_state.stage == "proposition_review":
+    st.subheader("Clarify the disagreement")
+    st.session_state.debate_prop = st.text_area("Debate Proposition:", value=st.session_state.debate_prop)
+
+    if st.button("Proceed to Debate"):
+        st.session_state.stage = "private_input"
+        st.session_state.current_user = "A"
         st.rerun()
 
-# --- Stage: Handoff A ---
-elif st.session_state.stage == "handoff_A":
-    st.header("Pass to First Debater")
-    st.markdown("Pass the device to **User A**. Click below when ready.")
-    if st.button(f"I'm {st.session_state.user_A_name}, Continue"):
-        st.session_state.stage = "first_user_private"
+# Private Input Stage
+elif st.session_state.stage == "private_input":
+    current_name = st.session_state.user_A_name if st.session_state.current_user == "A" else st.session_state.user_B_name
+    opponent_name = st.session_state.user_B_name if st.session_state.current_user == "A" else st.session_state.user_A_name
+
+    st.subheader(f"{current_name}, it’s your turn.")
+    if st.session_state.fight_history:
+        last_reply = st.session_state.fight_history[-1]["message"]
+        st.info(f"{opponent_name}'s response: {last_reply}")
+
+    user_input = st.text_area("Your argument:")
+    if st.button("Get Feedback"):
+        feedback_prompt = [{
+            "role": "system",
+            "content": "Provide structured feedback: mirror, fact-check (if needed), steelman, fallacy watch, and rewrite."
+        }, {
+            "role": "user",
+            "content": user_input
+        }]
+        feedback = call_gpt(feedback_prompt)
+        st.session_state.temp_feedback = feedback
+        st.session_state.temp_input = user_input
+        st.session_state.stage = "feedback"
         st.rerun()
 
-# --- Stage: User A First Response ---
-elif st.session_state.stage == "first_user_private":
-    st.subheader(f"🗣️ {st.session_state.user_A_name}, make your case")
-    st.markdown(f"**Debate Proposition:** *{st.session_state.debate_prop}*\n\nParticipants will discuss and evaluate the potential benefits and drawbacks of the tariffs, with one side arguing in favor of their positive impact on domestic industries and the economy, while the other side will argue that the tariffs are ultimately detrimental to economic growth and consumer prices.*")
+# Feedback Stage
+elif st.session_state.stage == "feedback":
+    feedback = st.session_state.temp_feedback
 
-    user_input = st.text_area("Why do you support your position?")
-    if st.button("Submit and Get Feedback"):
-        st.session_state.fight_history.append({"user": st.session_state.user_A_name, "content": user_input})
-        st.session_state.stage = "feedback_A"
+    st.markdown("### Your Feedback")
+    st.write(feedback)
+
+    suggested_reply = feedback.split("Rewrite:")[-1].strip()
+    polished_reply = st.text_area("Polished Reply:", value=suggested_reply)
+
+    if st.button("Submit & Pass"):
+        st.session_state.fight_history.append({
+            "user": st.session_state.current_user,
+            "message": polished_reply
+        })
+        st.session_state.current_user = "B" if st.session_state.current_user == "A" else "A"
+        st.session_state.stage = "handoff"
         st.rerun()
 
-# --- Stage: Feedback A ---
-elif st.session_state.stage == "feedback_A":
-    user_input = st.session_state.fight_history[-1]["content"]
-    opponent_name = st.session_state.user_B_name
+# Intermediary Handoff Stage
+elif st.session_state.stage == "handoff":
+    next_user = st.session_state.user_A_name if st.session_state.current_user == "A" else st.session_state.user_B_name
+    st.header(f"Pass the device to {next_user}")
 
-    feedback = call_gpt([
-        {"role": "system", "content": (
-            f"You're moderating a debate. Briefly fact-check {st.session_state.user_A_name}'s argument, then offer a concise steel-man of {opponent_name}'s likely position, and conclude with a polished version of {st.session_state.user_A_name}'s argument. Keep each part under 3 sentences."
-        )},
-        {"role": "user", "content": user_input}
-    ])
-
-    st.markdown("### Feedback")
-    st.markdown(feedback)
-
-    polished_response = feedback.split("Response:")[-1].strip()
-    st.markdown("---")
-    st.subheader("Your Improved Response")
-    st.markdown("Edit before submitting:")
-    final_response = st.text_area("Polished version of your argument:", value=polished_response)
-
-    if st.button("Submit and Pass"):
-        st.session_state.fight_history[-1]["polished"] = final_response
-        st.session_state.stage = "handoff_B"
+    if st.button(f"I'm {next_user}, continue"):
+        st.session_state.stage = "private_input"
         st.rerun()
 
-# Add future stages here, including handoff_B, feedback_B, and ongoing response cycles
+# Final Summary Stage
+elif st.sidebar.button("End Debate & View Summary"):
+    st.session_state.stage = "summary"
+    st.rerun()
+
+elif st.session_state.stage == "summary":
+    st.header("Debate Summary")
+    st.markdown(f"**Proposition:** {st.session_state.debate_prop}")
+
+    for entry in st.session_state.fight_history:
+        user_name = st.session_state.user_A_name if entry['user'] == 'A' else st.session_state.user_B_name
+        st.write(f"{user_name}: {entry['message']}")
+
+    st.button("Email Debate (Coming soon)", disabled=True)
+    st.button("Copy Summary (Coming soon)", disabled=True)
+    st.button("Let AI Decide the Winner (Coming soon)", disabled=True)
+
+# Sidebar Features
+with st.sidebar:
+    st.header("Debate Controls")
+    st.write("Use controls here to end debate or view summary.")
+    st.button("End Debate & View Summary")
