@@ -2,6 +2,7 @@
 
 import streamlit as st
 import os
+import re
 from dotenv import load_dotenv
 from openai import OpenAI
 
@@ -40,18 +41,18 @@ def call_gpt(messages):
     )
     return response.choices[0].message.content.strip()
 
-# UI - Goal Selection Grid
+# Goal Selection Grid
 if st.session_state.stage == "goal_select":
     st.title("Say It Right")
     st.caption("Diffuse conflict. Preserve truth. Protect what matters.")
     st.subheader("Choose your situation:")
 
     cols = st.columns(2)
-    if cols[0].button("🥊 Fight Productively"):
+    if cols[0].button("🍊 Fight Productively"):
         st.session_state.stage = "debate_setup"
         st.rerun()
 
-    cols[1].button("🧯 Cool things down (Coming soon)", disabled=True)
+    cols[1].button("🫯 Cool things down (Coming soon)", disabled=True)
     cols[0].button("🧠 Make my case—no fight (Coming soon)", disabled=True)
     cols[1].button("📱 Online heated (Coming soon)", disabled=True)
     cols[0].button("❤️ It's personal (Coming soon)", disabled=True)
@@ -60,7 +61,6 @@ if st.session_state.stage == "goal_select":
 # Debate Setup
 elif st.session_state.stage == "debate_setup":
     st.header("Set up your debate")
-
     debate_topic = st.text_area("Debate Topic:", key="debate_topic_input")
 
     st.session_state.user_A_name = st.text_input("User A Name:", value=st.session_state.user_A_name, key="user_A_name_input")
@@ -90,7 +90,7 @@ elif st.session_state.stage == "proposition_review":
         st.session_state.current_user = "A"
         st.rerun()
 
-# Private Input Stage
+# Private Input
 elif st.session_state.stage == "private_input":
     current_name = st.session_state.user_A_name if st.session_state.current_user == "A" else st.session_state.user_B_name
     opponent_name = st.session_state.user_B_name if st.session_state.current_user == "A" else st.session_state.user_A_name
@@ -104,17 +104,14 @@ elif st.session_state.stage == "private_input":
     if st.button("Get Feedback"):
         feedback_prompt = [{
             "role": "system",
-            "content": f"You're moderating a debate. Give structured feedback to help the user clarify their point and make a productive reply.\n"
-                       f"Include:\n"
-                       f"- Mirror: Summarize what the user is trying to say.\n"
-                       f"- Fact check (if needed): Brief correction.\n"
-                       f"- Steelman: Best version of the opponent's likely view.\n"
-                       f"- Fallacy Watch: Flag any issues.\n"
-                       f"- REWRITE: A refined version of the user's message as a productive reply to their opponent.\n"
-                       f"Only include one section called REWRITE at the end of your output."
+            "content": "You are a debate assistant helping the user give their strongest reply. You'll receive the debate topic, positions, and the user's current draft. Provide structured feedback: mirror what the user is trying to say, fact-check if needed, steelman the *opponent's* position, flag fallacies, and end with a proposed rewrite."
         }, {
             "role": "user",
-            "content": user_input
+            "content": f"Debate topic: {st.session_state.debate_prop}\n\n"
+                       f"{st.session_state.user_A_name}'s position: {st.session_state.user_A_position}\n"
+                       f"{st.session_state.user_B_name}'s position: {st.session_state.user_B_position}\n"
+                       f"Current user: {current_name}\n"
+                       f"Current draft: {user_input}"
         }]
         feedback = call_gpt(feedback_prompt)
         st.session_state.temp_feedback = feedback
@@ -122,19 +119,15 @@ elif st.session_state.stage == "private_input":
         st.session_state.stage = "feedback"
         st.rerun()
 
-# Feedback Stage
+# Feedback
 elif st.session_state.stage == "feedback":
     feedback = st.session_state.temp_feedback
     st.markdown("### Your Feedback")
-    parts = feedback.split("REWRITE:")
+    st.write(feedback)
 
-    if len(parts) == 2:
-        st.markdown(parts[0].strip())
-        clean_reply = parts[1].strip()
-    else:
-        clean_reply = feedback.strip()
-
-    polished_reply = st.text_area("Polished Reply:", value=clean_reply)
+    match = re.search(r"(?i)rewrite:\s*(.*)", feedback, re.DOTALL)
+    suggested_reply = match.group(1).strip() if match else ""
+    polished_reply = st.text_area("Polished Reply:", value=suggested_reply)
 
     if st.button("Submit & Pass"):
         st.session_state.fight_history.append({
@@ -145,7 +138,7 @@ elif st.session_state.stage == "feedback":
         st.session_state.stage = "handoff"
         st.rerun()
 
-# Intermediary Handoff Stage
+# Handoff
 elif st.session_state.stage == "handoff":
     next_user = st.session_state.user_A_name if st.session_state.current_user == "A" else st.session_state.user_B_name
     st.header(f"Pass the device to {next_user}")
@@ -154,39 +147,44 @@ elif st.session_state.stage == "handoff":
         st.session_state.stage = "private_input"
         st.rerun()
 
-# Final Summary
+# Summary
 elif st.session_state.stage == "summary":
     st.header("Debate Summary")
     st.markdown(f"**Proposition:** {st.session_state.debate_prop}")
 
-    for entry in st.session_state.fight_history:
-        user_name = st.session_state.user_A_name if entry['user'] == 'A' else st.session_state.user_B_name
-        st.write(f"{user_name}: {entry['message']}")
-
-    st.subheader("🧠 AI Judgment")
-    winner_prompt = [{
+    summary_prompt = [{
         "role": "system",
-        "content": f"You are a neutral debate judge. Based on the following exchange and the topic, offer a fair and thoughtful judgment about which user made the stronger case."
+        "content": "Write a short (under 5 sentences) summary of the public debate exchange below. Be neutral and conversational."
     }, {
         "role": "user",
-        "content": f"Debate Proposition: {st.session_state.debate_prop}\n\n" +
-                   "\n".join([f"{st.session_state.user_A_name if e['user']=='A' else st.session_state.user_B_name}: {e['message']}" for e in st.session_state.fight_history])
+        "content": "\n".join([
+            f"{st.session_state.user_A_name if e['user']=='A' else st.session_state.user_B_name}: {e['message']}"
+            for e in st.session_state.fight_history])
     }]
-    winner_judgment = call_gpt(winner_prompt)
-    st.write(winner_judgment)
+    debate_summary = call_gpt(summary_prompt)
+    st.markdown(debate_summary)
 
-    st.button("Email Debate (Coming soon)", disabled=True)
-    st.button("Copy Summary (Coming soon)", disabled=True)
+    if st.button("Let AI Decide the Winner"):
+        judge_prompt = [{
+            "role": "system",
+            "content": "Decide who presented the stronger arguments in the following exchange. Explain briefly in 3 sentences or less."
+        }, {
+            "role": "user",
+            "content": "\n".join([
+                f"{st.session_state.user_A_name if e['user']=='A' else st.session_state.user_B_name}: {e['message']}"
+                for e in st.session_state.fight_history])
+        }]
+        winner_judgment = call_gpt(judge_prompt)
+        st.success(winner_judgment)
 
 # Sidebar
 with st.sidebar:
     st.header("Debate Controls")
-
     if st.button("🔎 View Summary So Far"):
         st.session_state.summary_mode = not st.session_state.summary_mode
         st.rerun()
 
-    if st.button("🛑 End Debate"):
+    if st.button("🚫 End Debate"):
         st.session_state.stage = "summary"
         st.rerun()
 
