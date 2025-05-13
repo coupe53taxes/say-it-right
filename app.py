@@ -23,7 +23,8 @@ def initialize_state():
         "user_B_position": "",
         "current_user": "A",
         "temp_feedback": "",
-        "temp_input": ""
+        "temp_input": "",
+        "summary_mode": False  # NEW: to view summary mid-debate
     }
     for key, value in keys_defaults.items():
         if key not in st.session_state:
@@ -142,7 +143,7 @@ elif st.session_state.stage == "handoff":
         st.session_state.stage = "private_input"
         st.rerun()
 
-# Final Summary Stage
+# Final Summary (Post-End)
 elif st.session_state.stage == "summary":
     st.header("Debate Summary")
     st.markdown(f"**Proposition:** {st.session_state.debate_prop}")
@@ -155,11 +156,21 @@ elif st.session_state.stage == "summary":
     st.button("Copy Summary (Coming soon)", disabled=True)
     st.button("Let AI Decide the Winner (Coming soon)", disabled=True)
 
-# Sidebar Features
+# Sidebar: Tools Always Available
 with st.sidebar:
     st.header("Debate Controls")
-    if st.session_state.stage not in ["summary"]:
-        st.write("Use controls here to end debate or view summary.")
-        if st.button("End Debate & View Summary"):
-            st.session_state.stage = "summary"
-            st.rerun()
+
+    if st.button("🔎 View Summary So Far"):
+        st.session_state.summary_mode = not st.session_state.summary_mode
+        st.rerun()
+
+    if st.button("🛑 End Debate"):
+        st.session_state.stage = "summary"
+        st.rerun()
+
+    if st.session_state.summary_mode and st.session_state.fight_history:
+        st.markdown("### 📋 Summary So Far")
+        st.markdown(f"**Proposition:** {st.session_state.debate_prop}")
+        for entry in st.session_state.fight_history:
+            user_name = st.session_state.user_A_name if entry['user'] == 'A' else st.session_state.user_B_name
+            st.write(f"{user_name}: {entry['message']}")
