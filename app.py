@@ -17,8 +17,8 @@ def initialize_state():
         "stage": "goal_select",
         "fight_history": [],
         "debate_prop": "",
-        "user_A_name": "",
-        "user_B_name": "",
+        "user_A_name": "User A",
+        "user_B_name": "User B",
         "user_A_position": "",
         "user_B_position": "",
         "current_user": "A",
@@ -60,12 +60,12 @@ if st.session_state.stage == "goal_select":
 elif st.session_state.stage == "debate_setup":
     st.header("Set up your debate")
 
-    # Fix: Use static labels and unique keys to avoid StreamlitDuplicateElementID
-    st.session_state.user_A_name = st.text_input("User A Name:", key="user_A_name_input")
+    debate_topic = st.text_area("Debate Topic:", key="debate_topic_input")
+
+    st.session_state.user_A_name = st.text_input("User A Name:", value=st.session_state.user_A_name, key="user_A_name_input")
     st.session_state.user_A_position = st.text_area("Position of User A:", key="user_A_position_input")
-    st.session_state.user_B_name = st.text_input("User B Name:", key="user_B_name_input")
+    st.session_state.user_B_name = st.text_input("User B Name:", value=st.session_state.user_B_name, key="user_B_name_input")
     st.session_state.user_B_position = st.text_area("Position of User B:", key="user_B_position_input")
-    debate_topic = st.text_area("Debate Topic:")
 
     if st.button("Generate Proposition"):
         prop_prompt = [{
