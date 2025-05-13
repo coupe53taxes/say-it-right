@@ -45,10 +45,21 @@ def call_gpt(messages):
 # --- Stage Logic ---
 def goal_selection():
     st.subheader("What best describes your situation?")
-    cols = st.columns(2)
-    if cols[0].button("🥊 Fight Productively"):
+    st.markdown("Pick the one that fits best, and I’ll guide you from there.")
+
+    cols1 = st.columns(2)
+    cols2 = st.columns(2)
+    cols3 = st.columns(2)
+
+    if cols1[0].button("🥊 Fight Productively"):
         st.session_state.stage = "debate_setup"
         st.rerun()
+
+    cols1[1].button("🧯 Cool things down", disabled=True)
+    cols2[0].button("🧠 Make my case—no fight", disabled=True)
+    cols2[1].button("📱 Online heated", disabled=True)
+    cols3[0].button("❤️ It's personal", disabled=True)
+    cols3[1].button("😤 I need to vent", disabled=True)
 
 
 def debate_setup():
