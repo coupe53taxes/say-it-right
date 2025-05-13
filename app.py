@@ -1,11 +1,10 @@
-# Full Integrated Streamlit Debate Moderator App (Stable Copy)
+# Full Integrated Streamlit Debate Moderator App
 
 import streamlit as st
 import os
 from dotenv import load_dotenv
 from openai import OpenAI
 
-# Load environment variables
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
@@ -41,7 +40,7 @@ def call_gpt(messages):
     )
     return response.choices[0].message.content.strip()
 
-# Goal Selection Grid
+# UI - Goal Selection Grid
 if st.session_state.stage == "goal_select":
     st.title("Say It Right")
     st.caption("Diffuse conflict. Preserve truth. Protect what matters.")
@@ -105,7 +104,14 @@ elif st.session_state.stage == "private_input":
     if st.button("Get Feedback"):
         feedback_prompt = [{
             "role": "system",
-            "content": "Provide structured feedback: mirror, fact-check (if needed), steelman, fallacy watch, and rewrite."
+            "content": f"You're moderating a debate. Give structured feedback to help the user clarify their point and make a productive reply.\n"
+                       f"Include:\n"
+                       f"- Mirror: Summarize what the user is trying to say.\n"
+                       f"- Fact check (if needed): Brief correction.\n"
+                       f"- Steelman: Best version of the opponent's likely view.\n"
+                       f"- Fallacy Watch: Flag any issues.\n"
+                       f"- REWRITE: A refined version of the user's message as a productive reply to their opponent.\n"
+                       f"Only include one section called REWRITE at the end of your output."
         }, {
             "role": "user",
             "content": user_input
@@ -119,12 +125,16 @@ elif st.session_state.stage == "private_input":
 # Feedback Stage
 elif st.session_state.stage == "feedback":
     feedback = st.session_state.temp_feedback
-
     st.markdown("### Your Feedback")
-    st.write(feedback)
+    parts = feedback.split("REWRITE:")
 
-    suggested_reply = feedback.split("Rewrite:")[-1].strip()
-    polished_reply = st.text_area("Polished Reply:", value=suggested_reply)
+    if len(parts) == 2:
+        st.markdown(parts[0].strip())
+        clean_reply = parts[1].strip()
+    else:
+        clean_reply = feedback.strip()
+
+    polished_reply = st.text_area("Polished Reply:", value=clean_reply)
 
     if st.button("Submit & Pass"):
         st.session_state.fight_history.append({
@@ -144,26 +154,31 @@ elif st.session_state.stage == "handoff":
         st.session_state.stage = "private_input"
         st.rerun()
 
-# Final Summary (Post-End)
+# Final Summary
 elif st.session_state.stage == "summary":
     st.header("Debate Summary")
-
     st.markdown(f"**Proposition:** {st.session_state.debate_prop}")
 
     for entry in st.session_state.fight_history:
         user_name = st.session_state.user_A_name if entry['user'] == 'A' else st.session_state.user_B_name
         st.write(f"{user_name}: {entry['message']}")
 
-    if st.button("🧠 Let AI Decide the Winner"):
-        winner_prompt = [
-            {"role": "system", "content": "Evaluate who presented the stronger argument and why."},
-            {"role": "user", "content": "\n\n".join([f"{entry['user']}: {entry['message']}" for entry in st.session_state.fight_history])}
-        ]
-        winner_summary = call_gpt(winner_prompt)
-        st.markdown("### 🤖 AI Judgement:")
-        st.write(winner_summary)
+    st.subheader("🧠 AI Judgment")
+    winner_prompt = [{
+        "role": "system",
+        "content": f"You are a neutral debate judge. Based on the following exchange and the topic, offer a fair and thoughtful judgment about which user made the stronger case."
+    }, {
+        "role": "user",
+        "content": f"Debate Proposition: {st.session_state.debate_prop}\n\n" +
+                   "\n".join([f"{st.session_state.user_A_name if e['user']=='A' else st.session_state.user_B_name}: {e['message']}" for e in st.session_state.fight_history])
+    }]
+    winner_judgment = call_gpt(winner_prompt)
+    st.write(winner_judgment)
 
-# Sidebar: Tools Always Available
+    st.button("Email Debate (Coming soon)", disabled=True)
+    st.button("Copy Summary (Coming soon)", disabled=True)
+
+# Sidebar
 with st.sidebar:
     st.header("Debate Controls")
 
