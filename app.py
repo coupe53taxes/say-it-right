@@ -80,7 +80,7 @@ def send_transcript_to_zapier():
     timestamp_local = datetime.now(ZoneInfo("America/New_York"))
     timestamp_iso = timestamp_local.isoformat()  # includes DST-aware offset, e.g., -04:00
     timestamp_display = timestamp_local.strftime('%Y-%m-%d %H:%M:%S')  # for readability
-    timestamp_label = timestamp_local.strftime('%Y-%m-%d_%H-%M-%S')  # for filename
+    timestamp_label = timestamp_local.strftime('%Y-%m-%d_%H-%M-%S_%Z')  # for filename
     
     payload = {
         "transcript_text": final_text,
