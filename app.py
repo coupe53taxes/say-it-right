@@ -32,6 +32,7 @@ def initialize_state():
         "temp_feedback": "",
         "temp_input": "",
         "summary_mode": False
+        "debate_topic_input": "",
     }
     for key, value in keys_defaults.items():
         if key not in st.session_state:
