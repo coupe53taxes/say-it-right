@@ -11,12 +11,13 @@ import requests
 
 from pathlib import Path
 load_dotenv(dotenv_path=Path(".env"))
-#temp debug line
-st.write("Webhook URL from .env:", os.getenv("ZAPIER_WEBHOOK_URL"))
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # Page Configuration
 st.set_page_config(page_title="CoolerHeads", page_icon="🔥🧠🧊")
+
+#temp debug line
+st.write("Webhook URL from .env:", os.getenv("ZAPIER_WEBHOOK_URL"))
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # Show logo at top of page
 st.image("CoolerHeads logo 1.png", width=200)
