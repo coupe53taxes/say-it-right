@@ -221,7 +221,7 @@ elif st.session_state.stage == "summary":
         winner_judgment = call_gpt(judge_prompt)
         st.success(winner_judgment)
 
-    send_to_zapier()
+    send_transcript_to_zapier()
 
 # Sidebar
 with st.sidebar:
