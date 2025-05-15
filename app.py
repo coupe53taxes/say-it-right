@@ -78,15 +78,17 @@ def send_transcript_to_zapier():
     topic_clean = topic_raw.strip().replace(" ", "_")[:50]  # optional truncation for safety
     
     timestamp_local = datetime.now(ZoneInfo("America/New_York"))
-    timestamp_label = timestamp_local.strftime('%Y-%m-%d_%H-%M-%S')  # good for filenames
-    timestamp_display = timestamp_local.strftime('%Y-%m-%d %H:%M:%S')  # good for sheets or transcript
+    timestamp_iso = timestamp_local.isoformat()  # includes DST-aware offset, e.g., -04:00
+    timestamp_display = timestamp_local.strftime('%Y-%m-%d %H:%M:%S')  # for readability
+    timestamp_label = timestamp_local.strftime('%Y-%m-%d_%H-%M-%S')  # for filename
     
     payload = {
         "transcript_text": final_text,
-        "session_timestamp": timestamp_display,
+        "session_timestamp": timestamp_iso,  # preferred for automation
+        "session_timestamp_readable": timestamp_display,  # optional for human eyes
         "debate_topic_clean": topic_clean,
-        "filename_timestamp": timestamp_label  # NEW: Add this for filename use
-    }
+        "filename_timestamp": timestamp_label
+}
 
     try:
         requests.post(zapier_url, json=payload)
