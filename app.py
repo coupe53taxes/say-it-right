@@ -9,7 +9,8 @@ from PIL import Image
 from datetime import datetime
 import requests
 
-load_dotenv()
+from pathlib import Path
+load_dotenv(dotenv_path=Path(".env"))
 #temp debug line
 st.write("Webhook URL from .env:", os.getenv("ZAPIER_WEBHOOK_URL"))
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
