@@ -48,7 +48,7 @@ def call_gpt(messages):
 # Goal Selection Grid
 if st.session_state.stage == "goal_select":
     st.title("CoolerHeads")
-    st.caption("Diffuse conflict. Preserve truth. Protect what matters.")
+    st.caption("Diffuse conflict. Strenghthen relationshops. Seek truth.")
     st.subheader("Choose your situation:")
 
     cols = st.columns(2)
