@@ -6,6 +6,7 @@ import re
 from openai import OpenAI
 from PIL import Image
 from datetime import datetime
+from zoneinfo import ZoneInfo
 import requests
 
 # Page Configuration
@@ -55,7 +56,7 @@ def send_transcript_to_zapier():
 
     transcript_lines = []
     transcript_lines.append(f"=== New Debate Session ===")
-    transcript_lines.append(f"Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    transcript_lines.append(f"Timestamp: {datetime.now(ZoneInfo('America/New_York')).strftime('%Y-%m-%d %H:%M:%S')}")
     transcript_lines.append(f"Topic: {st.session_state.debate_prop}")
     transcript_lines.append(f"{st.session_state.user_A_name} position: {st.session_state.user_A_position}")
     transcript_lines.append(f"{st.session_state.user_B_name} position: {st.session_state.user_B_position}")
@@ -76,7 +77,7 @@ def send_transcript_to_zapier():
     
     payload = {
         "transcript_text": final_text,
-        "session_timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        "session_timestamp": datetime.now(ZoneInfo("America/New_York")).strftime('%Y-%m-%d %H:%M:%S'),
         "debate_topic_clean": topic_clean
     }
 
