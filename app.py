@@ -88,11 +88,11 @@ if st.session_state.stage == "goal_select":
     st.subheader("Choose your situation:")
 
     cols = st.columns(2)
-    if cols[0].button("🍊 Fight Productively"):
+    if cols[0].button("🥊 Fight Productively"):
         st.session_state.stage = "debate_setup"
         st.rerun()
 
-    cols[1].button("🫟 Cool things down (Coming soon)", disabled=True)
+    cols[1].button("🧯 Cool things down (Coming soon)", disabled=True)
     cols[0].button("🧠 Make my case—no fight (Coming soon)", disabled=True)
     cols[1].button("📱 Online heated (Coming soon)", disabled=True)
     cols[0].button("❤️ It's personal (Coming soon)", disabled=True)
