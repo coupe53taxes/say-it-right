@@ -114,16 +114,18 @@ elif st.session_state.stage == "debate_setup":
     st.session_state.user_B_position = st.text_area("Position of User B:", key="user_B_position_input")
 
     if st.button("Generate Proposition"):
-        prop_prompt = [{
-            "role": "system",
-            "content": "Generate a neutral debate proposition: 'The disagreement is over whether X is beneficial.'"
-        }, {
-            "role": "user",
-            "content": f"Topic: {debate_topic}\n{st.session_state.user_A_name}: {st.session_state.user_A_position}\n{st.session_state.user_B_name}: {st.session_state.user_B_position}"
-        }]
-        st.session_state.debate_prop = call_gpt(prop_prompt)
-        st.session_state.stage = "proposition_review"
-        st.rerun()
+    prop_prompt = [{
+        "role": "system",
+        "content": "Generate a neutral debate proposition: 'The disagreement is over whether X is beneficial.'"
+    }, {
+        "role": "user",
+        "content": f"Topic: {st.session_state.debate_topic_input}\n"
+                   f"{st.session_state.user_A_name}: {st.session_state.user_A_position}\n"
+                   f"{st.session_state.user_B_name}: {st.session_state.user_B_position}"
+    }]
+    st.session_state.debate_prop = call_gpt(prop_prompt)
+    st.session_state.stage = "proposition_review"
+    st.rerun()
 
 # Proposition Review
 elif st.session_state.stage == "proposition_review":
