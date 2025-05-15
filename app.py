@@ -5,12 +5,13 @@ import os
 import re
 from dotenv import load_dotenv
 from openai import OpenAI
+from PIL import Image
 
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # Page Configuration
-st.set_page_config(page_title="CoolerHeads", page_icon="✉️")
+st.set_page_config(page_title="CoolerHeads", page_icon="CoolerHeads logo 1.png")
 
 # Session State Initialization
 def initialize_state():
