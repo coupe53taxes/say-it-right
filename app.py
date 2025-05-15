@@ -11,7 +11,10 @@ load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # Page Configuration
-st.set_page_config(page_title="CoolerHeads", page_icon="CoolerHeads logo 1.png")
+st.set_page_config(page_title="CoolerHeads", page_icon="🔥🧠🧊")
+
+# Show logo at top of page
+st.image("CoolerHeads logo 1.png", width=200)
 
 # Session State Initialization
 def initialize_state():
