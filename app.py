@@ -31,8 +31,7 @@ def initialize_state():
         "current_user": "A",
         "temp_feedback": "",
         "temp_input": "",
-        "summary_mode": False,
-        "debate_summary": ""
+        "summary_mode": False
     }
     for key, value in keys_defaults.items():
         if key not in st.session_state:
@@ -48,29 +47,39 @@ def call_gpt(messages):
     )
     return response.choices[0].message.content.strip()
 
-# Webhook Logging to Zapier
+# Send transcript to Zapier
+ZAPIER_WEBHOOK_URL = "https://hooks.zapier.com/hooks/catch/22946300/2712sts/"
+
 def send_to_zapier():
-    webhook_url = "https://hooks.zapier.com/hooks/catch/22946300/2712sts/"
-    transcript = [
+    transcript_parts = [
         f"Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
         f"Topic: Debate Proposition: {st.session_state.debate_prop}",
         f"{st.session_state.user_A_name} position: {st.session_state.user_A_position}",
-        f"{st.session_state.user_B_name} position: {st.session_state.user_B_position}\n"
+        f"{st.session_state.user_B_name} position: {st.session_state.user_B_position}"
     ]
-
     for entry in st.session_state.fight_history:
-        user_name = st.session_state.user_A_name if entry['user'] == 'A' else st.session_state.user_B_name
-        transcript.append(f"{user_name} INPUT:\n{entry.get('raw_input', '')}")
-        transcript.append(f"FEEDBACK:\n{entry.get('feedback', '')}")
-        transcript.append(f"FINAL REPLY:\n{entry['message']}\n")
+        user = st.session_state.user_A_name if entry['user'] == 'A' else st.session_state.user_B_name
+        transcript_parts.append(f"\n{user} INPUT:\n{entry.get('raw_input', '')}")
+        transcript_parts.append(f"FEEDBACK:\n{entry.get('feedback', '')}")
+        transcript_parts.append(f"FINAL REPLY:\n{entry['message']}")
 
-    transcript.append("SUMMARY:\n" + st.session_state.get("debate_summary", ""))
+    summary_prompt = [{
+        "role": "system",
+        "content": "Write a short (under 5 sentences) summary of the public debate exchange below. Be neutral and conversational."
+    }, {
+        "role": "user",
+        "content": "\n".join([
+            f"{st.session_state.user_A_name if e['user']=='A' else st.session_state.user_B_name}: {e['message']}"
+            for e in st.session_state.fight_history])
+    }]
+    debate_summary = call_gpt(summary_prompt)
+    transcript_parts.append(f"\nSUMMARY:\n{debate_summary}")
 
-    data = {"transcript": "\n".join(transcript)}
+    payload = {"transcript": "\n".join(transcript_parts)}
     try:
-        requests.post(webhook_url, json=data)
+        requests.post(ZAPIER_WEBHOOK_URL, json=payload)
     except Exception as e:
-        st.error(f"Zapier webhook failed: {e}")
+        st.error(f"Zapier transmission failed: {e}")
 
 # Goal Selection Grid
 if st.session_state.stage == "goal_select":
@@ -195,8 +204,20 @@ elif st.session_state.stage == "summary":
             for e in st.session_state.fight_history])
     }]
     debate_summary = call_gpt(summary_prompt)
-    st.session_state.debate_summary = debate_summary
     st.markdown(debate_summary)
+
+    if st.button("🤖Let AI Decide the Winner"):
+        judge_prompt = [{
+            "role": "system",
+            "content": "Decide who presented the stronger arguments in the following exchange. Explain briefly in 3 sentences or less."
+        }, {
+            "role": "user",
+            "content": "\n".join([
+                f"{st.session_state.user_A_name if e['user']=='A' else st.session_state.user_B_name}: {e['message']}"
+                for e in st.session_state.fight_history])
+        }]
+        winner_judgment = call_gpt(judge_prompt)
+        st.success(winner_judgment)
 
     send_to_zapier()
 
