@@ -31,7 +31,7 @@ def initialize_state():
         "current_user": "A",
         "temp_feedback": "",
         "temp_input": "",
-        "summary_mode": False
+        "summary_mode": False,
         "debate_topic_input": "",
     }
     for key, value in keys_defaults.items():
