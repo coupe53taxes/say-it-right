@@ -1,9 +1,9 @@
 # Full Integrated Streamlit Debate Moderator App
 
+from dotenv import load_dotenv
 import streamlit as st
 import os
 import re
-from dotenv import load_dotenv
 from openai import OpenAI
 from PIL import Image
 from datetime import datetime
