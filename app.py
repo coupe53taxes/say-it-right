@@ -69,7 +69,6 @@ def send_transcript_to_zapier():
     transcript_lines.append("\n=== End of Session ===\n")
     final_text = "\n".join(transcript_lines)
 
-    # 🚀 Replace this with your actual Zapier Webhook URL
     zapier_url = os.getenv("ZAPIER_WEBHOOK_URL")
 
     topic_raw = st.session_state.get("debate_topic_input", "No topic provided")
