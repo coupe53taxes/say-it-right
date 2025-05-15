@@ -6,6 +6,7 @@ import re
 from dotenv import load_dotenv
 from openai import OpenAI
 from PIL import Image
+from datetime import datetime
 
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -45,6 +46,21 @@ def call_gpt(messages):
     )
     return response.choices[0].message.content.strip()
 
+# Logging debate to file
+def log_debate():
+    with open("all_debates.txt", "a") as f:
+        f.write("\n=== New Debate Session ===\n")
+        f.write(f"Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+        f.write(f"Topic: {st.session_state.debate_prop}\n")
+        f.write(f"{st.session_state.user_A_name} position: {st.session_state.user_A_position}\n")
+        f.write(f"{st.session_state.user_B_name} position: {st.session_state.user_B_position}\n")
+        for entry in st.session_state.fight_history:
+            user_name = st.session_state.user_A_name if entry['user'] == 'A' else st.session_state.user_B_name
+            f.write(f"\n{user_name} INPUT:\n{entry.get('raw_input', '')}\n")
+            f.write(f"FEEDBACK:\n{entry.get('feedback', '')}\n")
+            f.write(f"FINAL REPLY:\n{entry['message']}\n")
+        f.write("\n=== End of Session ===\n\n")
+
 # Goal Selection Grid
 if st.session_state.stage == "goal_select":
     st.title("CoolerHeads")
@@ -52,11 +68,11 @@ if st.session_state.stage == "goal_select":
     st.subheader("Choose your situation:")
 
     cols = st.columns(2)
-    if cols[0].button("🥊 Fight Productively"):
+    if cols[0].button("🍊 Fight Productively"):
         st.session_state.stage = "debate_setup"
         st.rerun()
 
-    cols[1].button("🫯 Cool things down (Coming soon)", disabled=True)
+    cols[1].button("🫟 Cool things down (Coming soon)", disabled=True)
     cols[0].button("🧠 Make my case—no fight (Coming soon)", disabled=True)
     cols[1].button("📱 Online heated (Coming soon)", disabled=True)
     cols[0].button("❤️ It's personal (Coming soon)", disabled=True)
@@ -136,7 +152,9 @@ elif st.session_state.stage == "feedback":
     if st.button("Submit & Pass"):
         st.session_state.fight_history.append({
             "user": st.session_state.current_user,
-            "message": polished_reply
+            "message": polished_reply,
+            "raw_input": st.session_state.temp_input,
+            "feedback": feedback
         })
         st.session_state.current_user = "B" if st.session_state.current_user == "A" else "A"
         st.session_state.stage = "handoff"
@@ -181,6 +199,8 @@ elif st.session_state.stage == "summary":
         winner_judgment = call_gpt(judge_prompt)
         st.success(winner_judgment)
 
+    log_debate()
+
 # Sidebar
 with st.sidebar:
     st.header("Debate Controls")
@@ -188,7 +208,7 @@ with st.sidebar:
         st.session_state.summary_mode = not st.session_state.summary_mode
         st.rerun()
 
-    if st.button("🛑 End Debate"):
+    if st.button("🚩 End Debate"):
         st.session_state.stage = "summary"
         st.rerun()
 
