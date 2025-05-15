@@ -52,8 +52,7 @@ def call_gpt(messages):
 ZAPIER_WEBHOOK_URL = os.getenv("ZAPIER_WEBHOOK_URL")
 
 def send_transcript_to_zapier():
-    from datetime import datetime
-
+    
     transcript_lines = []
     transcript_lines.append(f"=== New Debate Session ===")
     transcript_lines.append(f"Timestamp: {datetime.now(ZoneInfo('America/New_York')).strftime('%Y-%m-%d %H:%M:%S')}")
