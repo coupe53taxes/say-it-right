@@ -77,10 +77,15 @@ def send_transcript_to_zapier():
     topic_raw = st.session_state.get("debate_topic_input", "No topic provided")
     topic_clean = topic_raw.strip().replace(" ", "_")[:50]  # optional truncation for safety
     
+    timestamp_local = datetime.now(ZoneInfo("America/New_York"))
+    timestamp_label = timestamp_local.strftime('%Y-%m-%d_%H-%M-%S')  # good for filenames
+    timestamp_display = timestamp_local.strftime('%Y-%m-%d %H:%M:%S')  # good for sheets or transcript
+    
     payload = {
         "transcript_text": final_text,
-        "session_timestamp": now.isoformat(),
-        "debate_topic_clean": topic_clean
+        "session_timestamp": timestamp_display,
+        "debate_topic_clean": topic_clean,
+        "filename_timestamp": timestamp_label  # NEW: Add this for filename use
     }
 
     try:
