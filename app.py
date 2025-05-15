@@ -49,7 +49,7 @@ def call_gpt(messages):
     return response.choices[0].message.content.strip()
 
 # Send transcript to Zapier
-ZAPIER_WEBHOOK_URL = "https://hooks.zapier.com/hooks/catch/22946300/2792tu6/"
+ZAPIER_WEBHOOK_URL = os.getenv("ZAPIER_WEBHOOK_URL")
 
 def send_transcript_to_zapier():
     from datetime import datetime
