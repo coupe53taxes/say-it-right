@@ -5,9 +5,12 @@ import os
 import re
 from openai import OpenAI
 from PIL import Image
+import requests
+
 from datetime import datetime
 from zoneinfo import ZoneInfo
-import requests
+now = datetime.now(ZoneInfo("America/New_York"))
+iso_timestamp = now.isoformat()  # This will include offset like "-04:00"
 
 # Page Configuration
 st.set_page_config(page_title="CoolerHeads", page_icon="🔥🧠🧊")
@@ -76,7 +79,7 @@ def send_transcript_to_zapier():
     
     payload = {
         "transcript_text": final_text,
-        "session_timestamp": datetime.now(ZoneInfo("America/New_York")).strftime('%Y-%m-%d %H:%M:%S'),
+        "session_timestamp": now.isoformat(),
         "debate_topic_clean": topic_clean
     }
 
