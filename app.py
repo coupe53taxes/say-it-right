@@ -50,36 +50,38 @@ def call_gpt(messages):
 # Send transcript to Zapier
 ZAPIER_WEBHOOK_URL = "https://hooks.zapier.com/hooks/catch/22946300/2712sts/"
 
-def send_to_zapier():
-    transcript_parts = [
-        f"Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
-        f"Topic: Debate Proposition: {st.session_state.debate_prop}",
-        f"{st.session_state.user_A_name} position: {st.session_state.user_A_position}",
-        f"{st.session_state.user_B_name} position: {st.session_state.user_B_position}"
-    ]
+def send_transcript_to_zapier():
+    from datetime import datetime
+
+    transcript_lines = []
+    transcript_lines.append(f"=== New Debate Session ===")
+    transcript_lines.append(f"Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    transcript_lines.append(f"Topic: {st.session_state.debate_prop}")
+    transcript_lines.append(f"{st.session_state.user_A_name} position: {st.session_state.user_A_position}")
+    transcript_lines.append(f"{st.session_state.user_B_name} position: {st.session_state.user_B_position}")
+    
     for entry in st.session_state.fight_history:
-        user = st.session_state.user_A_name if entry['user'] == 'A' else st.session_state.user_B_name
-        transcript_parts.append(f"\n{user} INPUT:\n{entry.get('raw_input', '')}")
-        transcript_parts.append(f"FEEDBACK:\n{entry.get('feedback', '')}")
-        transcript_parts.append(f"FINAL REPLY:\n{entry['message']}")
+        user_name = st.session_state.user_A_name if entry['user'] == 'A' else st.session_state.user_B_name
+        transcript_lines.append(f"\n{user_name} INPUT:\n{entry.get('raw_input', '')}")
+        transcript_lines.append(f"FEEDBACK:\n{entry.get('feedback', '')}")
+        transcript_lines.append(f"FINAL REPLY:\n{entry['message']}")
 
-    summary_prompt = [{
-        "role": "system",
-        "content": "Write a short (under 5 sentences) summary of the public debate exchange below. Be neutral and conversational."
-    }, {
-        "role": "user",
-        "content": "\n".join([
-            f"{st.session_state.user_A_name if e['user']=='A' else st.session_state.user_B_name}: {e['message']}"
-            for e in st.session_state.fight_history])
-    }]
-    debate_summary = call_gpt(summary_prompt)
-    transcript_parts.append(f"\nSUMMARY:\n{debate_summary}")
+    transcript_lines.append("\n=== End of Session ===\n")
+    final_text = "\n".join(transcript_lines)
 
-    payload = {"transcript": "\n".join(transcript_parts)}
+    # 🚀 Replace this with your actual Zapier Webhook URL
+    zapier_url = "https://hooks.zapier.com/hooks/catch/22946300/2712sts/"
+
+    payload = {
+        "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        "debate_topic": st.session_state.debate_prop,
+        "transcript": final_text
+    }
+
     try:
-        requests.post(ZAPIER_WEBHOOK_URL, json=payload)
+        requests.post(zapier_url, json=payload)
     except Exception as e:
-        st.error(f"Zapier transmission failed: {e}")
+        st.error(f"Failed to send transcript to Zapier: {e}")
 
 # Goal Selection Grid
 if st.session_state.stage == "goal_select":
