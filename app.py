@@ -74,6 +74,8 @@ def send_transcript_to_zapier():
 
     # 🚀 Replace this with your actual Zapier Webhook URL
     zapier_url = os.getenv("ZAPIER_WEBHOOK_URL")
+    #temp patch
+    st.write(f"Loaded Zapier URL: {zapier_url}")
 
     topic_raw = st.session_state.get("debate_topic_input", "No topic provided")
     topic_clean = topic_raw.strip().replace(" ", "_")[:50]  # optional truncation for safety
