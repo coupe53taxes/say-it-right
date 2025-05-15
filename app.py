@@ -72,11 +72,14 @@ def send_transcript_to_zapier():
     # 🚀 Replace this with your actual Zapier Webhook URL
     zapier_url = "https://hooks.zapier.com/hooks/catch/22946300/2712sts/"
 
+    topic_raw = st.session_state.get("debate_topic_input", "No topic provided")
+    topic_clean = topic_raw.strip().replace(" ", "_")[:50]  # optional truncation for safety
+    
     payload = {
         "transcript_text": final_text,
         "session_timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-        "debate_topic_clean": st.session_state.debate_prop
-}
+        "debate_topic_clean": topic_clean
+    }
 
     try:
         requests.post(zapier_url, json=payload)
