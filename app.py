@@ -106,7 +106,7 @@ if st.session_state.stage == "goal_select":
 # Debate Setup
 elif st.session_state.stage == "debate_setup":
     st.header("Set up your debate")
-    st.session_state.debate_topic_input = st.text_area("Debate Topic:", value=st.session_state.get("debate_topic_input", ""))
+    st.session_state.debate_topic_input = st.text_area("Debate Topic:", value=st.session_state.debate_topic_input, key="debate_topic_input")
 
     st.session_state.user_A_name = st.text_input("User A Name:", value=st.session_state.user_A_name, key="user_A_name_input")
     st.session_state.user_A_position = st.text_area("Position of User A:", key="user_A_position_input")
