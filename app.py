@@ -88,7 +88,20 @@ def send_transcript_to_zapier():
         "session_timestamp_readable": timestamp_display,  # optional for human eyes
         "debate_topic_clean": topic_clean,
         "filename_timestamp": timestamp_label
-}
+        "Timestamp": timestamp_local.strftime("%Y-%m-%d %H:%M:%S %Z"),
+        "Topic": st.session_state.get("debate_prop", ""),
+        "User A Name": st.session_state.get("user_A_name", ""),
+        "User B Name": st.session_state.get("user_B_name", ""),
+        "User A Position": st.session_state.get("user_A_position", ""),
+        "User B Position": st.session_state.get("user_B_position", ""),
+        "Number of Rounds": len(st.session_state.fight_history),
+        "LLM Productivity": "",  # Add later if desired
+        "User Rating": "",       # Optional
+        "Transcript URL": "",    # You can add from the Drive step if needed
+        "Summary": "",           # Populate if you generate one
+        "Winner": "",            # If you judge the debate
+        "Flagged": ""            # For future moderation
+    }
 
     try:
         requests.post(zapier_url, json=payload)
