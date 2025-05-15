@@ -229,7 +229,8 @@ elif st.session_state.stage == "summary":
         }]
         winner_judgment = call_gpt(judge_prompt)
         st.success(winner_judgment)
-
+#temp
+    st.write("Webhook URL from .env:", os.getenv("ZAPIER_WEBHOOK_URL"))
     send_transcript_to_zapier()
 
 # Sidebar
