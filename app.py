@@ -83,11 +83,13 @@ def send_transcript_to_zapier():
     timestamp_label = timestamp_local.strftime('%Y-%m-%d_%H-%M-%S_%Z')  # for filename
     
     payload = {
+        #transcripts
         "transcript_text": final_text,
         "session_timestamp": timestamp_iso,  # preferred for automation
         "session_timestamp_readable": timestamp_display,  # optional for human eyes
         "debate_topic_clean": topic_clean,
-        "filename_timestamp": timestamp_label
+        "filename_timestamp": timestamp_label,
+        #sheet data
         "Timestamp": timestamp_local.strftime("%Y-%m-%d %H:%M:%S %Z"),
         "Topic": st.session_state.get("debate_prop", ""),
         "User A Name": st.session_state.get("user_A_name", ""),
