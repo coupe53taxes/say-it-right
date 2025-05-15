@@ -1,6 +1,5 @@
-#TEST Full Integrated Streamlit Debate Moderator App
+#Full Integrated Streamlit Debate Moderator App
 
-from dotenv import load_dotenv
 import streamlit as st
 import os
 import re
@@ -9,15 +8,11 @@ from PIL import Image
 from datetime import datetime
 import requests
 
-from pathlib import Path
-load_dotenv(dotenv_path=Path(".env"))
-
 # Page Configuration
 st.set_page_config(page_title="CoolerHeads", page_icon="🔥🧠🧊")
 
-#temp debug line
-st.write("Webhook URL from .env:", os.getenv("ZAPIER_WEBHOOK_URL"))
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+ZAPIER_WEBHOOK_URL = st.secrets["ZAPIER_WEBHOOK_URL"]
 
 # Show logo at top of page
 st.image("CoolerHeads logo 1.png", width=200)
@@ -76,8 +71,6 @@ def send_transcript_to_zapier():
 
     # 🚀 Replace this with your actual Zapier Webhook URL
     zapier_url = os.getenv("ZAPIER_WEBHOOK_URL")
-    #temp patch
-    st.write(f"Loaded Zapier URL: {zapier_url}")
 
     topic_raw = st.session_state.get("debate_topic_input", "No topic provided")
     topic_clean = topic_raw.strip().replace(" ", "_")[:50]  # optional truncation for safety
@@ -231,8 +224,7 @@ elif st.session_state.stage == "summary":
         }]
         winner_judgment = call_gpt(judge_prompt)
         st.success(winner_judgment)
-#temp
-    st.write("Webhook URL from .env:", os.getenv("ZAPIER_WEBHOOK_URL"))
+
     send_transcript_to_zapier()
 
 # Sidebar
