@@ -97,12 +97,12 @@ def send_transcript_to_zapier():
         "User A Position": st.session_state.get("user_A_position") or "No position provided",
         "User B Position": st.session_state.get("user_B_position") or "No position provided",
         "Number of Rounds": len(st.session_state.fight_history),
-        "LLM Productivity": 0,             # placeholder until implemented
-        "User Rating": "",                 # placeholder until implemented
-        "Transcript URL": "",             # filled by Google Drive step
-        "Summary": "",                    # optional for now
-        "Winner": "",                     # optional for now
-        "Flagged": False                  # default false unless moderation flags
+        "LLM Productivity": 0,
+        "User Rating": "N/A",
+        "Transcript URL": "N/A",
+        "Summary": "N/A",
+        "Winner": "N/A",
+        "Flagged": False
     }
 
     try:
