@@ -59,7 +59,7 @@ def send_transcript_to_zapier():
     transcript_lines = []
     transcript_lines.append(f"=== New Debate Session ===")
     transcript_lines.append(f"Timestamp: {datetime.now(ZoneInfo('America/New_York')).strftime('%Y-%m-%d %H:%M:%S')}")
-    transcript_lines.append(f"Topic: {st.session_state.debate_prop}")
+    transcript_lines.append(f"Topic: {st.session_state.get('debate_topic_input', 'No topic provided')}")
     transcript_lines.append(f"{st.session_state.user_A_name} position: {st.session_state.user_A_position}")
     transcript_lines.append(f"{st.session_state.user_B_name} position: {st.session_state.user_B_position}")
     
