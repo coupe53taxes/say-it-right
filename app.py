@@ -60,6 +60,15 @@ def call_gpt(messages):
     )
     return response.choices[0].message.content.strip()
 
+def extract_winner_name(judgment_text, name_a, name_b):
+    text = judgment_text.lower()
+    if name_a.lower() in text:
+        return name_a
+    elif name_b.lower() in text:
+        return name_b
+    else:
+        return "Undetermined"
+
 # Send transcript to Zapier
 ZAPIER_WEBHOOK_URL = os.getenv("ZAPIER_WEBHOOK_URL")
 
@@ -78,6 +87,8 @@ def send_transcript_to_zapier():
         transcript_lines.append(f"FEEDBACK:\n{entry.get('feedback', '')}")
         transcript_lines.append(f"FINAL REPLY:\n{entry['message']}")
 
+    transcript_lines.append("\n=== AI Decision (Not Always Shown to Users) ===")
+    transcript_lines.append(st.session_state.get("winner_judgment", "N/A"))
     transcript_lines.append("\n=== End of Session ===\n")
     final_text = "\n".join(transcript_lines)
 
@@ -115,7 +126,9 @@ def send_transcript_to_zapier():
         "User Rating": "N/A",
         "Transcript URL": "N/A",
         "Summary": "N/A",
-        "Winner": "N/A",
+        "Winner": extract_winner_name(st.session_state.get("winner_judgment", "N/A"),
+                              st.session_state.user_A_name,
+                              st.session_state.user_B_name)
         "Flagged": False
     }
 
@@ -267,18 +280,21 @@ elif st.session_state.stage == "summary":
     debate_summary = call_gpt(summary_prompt)
     st.markdown(debate_summary)
 
+    # Always generate winner (hidden until revealed)
+    judge_prompt = [{
+        "role": "system",
+        "content": "Decide who presented the stronger arguments in the following exchange. Explain briefly in 3 sentences or less."
+    }, {
+        "role": "user",
+        "content": "\n".join([
+            f"{st.session_state.user_A_name if e['user']=='A' else st.session_state.user_B_name}: {e['message']}"
+            for e in st.session_state.fight_history])
+    }]
+    st.session_state.winner_judgment = call_gpt(judge_prompt)
+    
+    # Optional reveal button
     if st.button("🤖Let AI Decide the Winner"):
-        judge_prompt = [{
-            "role": "system",
-            "content": "Decide who presented the stronger arguments in the following exchange. Explain briefly in 3 sentences or less."
-        }, {
-            "role": "user",
-            "content": "\n".join([
-                f"{st.session_state.user_A_name if e['user']=='A' else st.session_state.user_B_name}: {e['message']}"
-                for e in st.session_state.fight_history])
-        }]
-        winner_judgment = call_gpt(judge_prompt)
-        st.success(winner_judgment)
+        st.success(st.session_state.winner_judgment)
 
     send_transcript_to_zapier()
     log_user_activity()
