@@ -83,26 +83,26 @@ def send_transcript_to_zapier():
     timestamp_label = timestamp_local.strftime('%Y-%m-%d_%H-%M-%S_%Z')  # for filename
     
     payload = {
-        #transcripts
         "transcript_text": final_text,
-        "session_timestamp": timestamp_iso,  # preferred for automation
-        "session_timestamp_readable": timestamp_display,  # optional for human eyes
+        "session_timestamp": timestamp_iso,
+        "session_timestamp_readable": timestamp_display,
         "debate_topic_clean": topic_clean,
         "filename_timestamp": timestamp_label,
-        #sheet data
+        
+        # For the spreadsheet
         "Timestamp": timestamp_local.strftime("%Y-%m-%d %H:%M:%S %Z"),
-        "Topic": st.session_state.get("debate_prop", ""),
-        "User A Name": st.session_state.get("user_A_name", ""),
-        "User B Name": st.session_state.get("user_B_name", ""),
-        "User A Position": st.session_state.get("user_A_position", ""),
-        "User B Position": st.session_state.get("user_B_position", ""),
+        "Topic": st.session_state.get("debate_prop") or "No topic provided",
+        "User A Name": st.session_state.get("user_A_name") or "User A",
+        "User B Name": st.session_state.get("user_B_name") or "User B",
+        "User A Position": st.session_state.get("user_A_position") or "No position provided",
+        "User B Position": st.session_state.get("user_B_position") or "No position provided",
         "Number of Rounds": len(st.session_state.fight_history),
-        "LLM Productivity": "",  # Add later if desired
-        "User Rating": "",       # Optional
-        "Transcript URL": "",    # You can add from the Drive step if needed
-        "Summary": "",           # Populate if you generate one
-        "Winner": "",            # If you judge the debate
-        "Flagged": ""            # For future moderation
+        "LLM Productivity": 0,             # placeholder until implemented
+        "User Rating": "",                 # placeholder until implemented
+        "Transcript URL": "",             # filled by Google Drive step
+        "Summary": "",                    # optional for now
+        "Winner": "",                     # optional for now
+        "Flagged": False                  # default false unless moderation flags
     }
 
     try:
