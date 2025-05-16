@@ -46,10 +46,10 @@ initialize_state()
 #for unique user data
 import uuid
 
-query_params = st.experimental_get_query_params()
+query_params = st.query_params
 if "user_id" not in st.session_state:
     if "uid" in query_params:
-        st.session_state.user_id = query_params["uid"][0]
+        st.session_state.user_id = query_params["uid"]
     else:
         st.session_state.user_id = str(uuid.uuid4())
 
