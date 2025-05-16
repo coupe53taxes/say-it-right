@@ -291,7 +291,8 @@ elif st.session_state.stage == "summary":
             f"{st.session_state.user_A_name if e['user']=='A' else st.session_state.user_B_name}: {e['message']}"
             for e in st.session_state.fight_history])
     }]
-    st.session_state.winner_judgment = call_gpt(judge_prompt)
+    if "winner_judgment" not in st.session_state:
+        st.session_state.winner_judgment = call_gpt(judge_prompt)
     
     # Optional reveal button
     if st.button("🤖Let AI Decide the Winner"):
