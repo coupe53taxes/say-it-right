@@ -145,7 +145,8 @@ def log_user_activity():
         "Stage Reached": st.session_state.stage,
         "Number of Rounds": len(st.session_state.fight_history),
         "Topic": st.session_state.get("debate_topic_input", "N/A").strip() or "N/A",
-        "User Rating": "N/A"  # Placeholder
+        "User Rating": "N/A",  # Placeholder
+        "Completed": st.session_state.stage == "summary"
     }
 
     try:
