@@ -128,7 +128,7 @@ def send_transcript_to_zapier():
         "Summary": "N/A",
         "Winner": extract_winner_name(st.session_state.get("winner_judgment", "N/A"),
                               st.session_state.user_A_name,
-                              st.session_state.user_B_name)
+                              st.session_state.user_B_name),
         "Flagged": False
     }
 
