@@ -74,8 +74,13 @@ def send_transcript_to_zapier():
 
     zapier_url = os.getenv("ZAPIER_WEBHOOK_URL")
 
-    topic_raw = st.session_state.get("debate_topic_input", "No topic provided")
-    topic_clean = topic_raw.strip().replace(" ", "_")[:50]  # optional truncation for safety
+    topic_input = st.session_state.get("debate_topic_input", "").strip()
+    topic_display = topic_input if topic_input else "No topic provided"
+
+    # Clean version for filenames: underscores, no special chars
+    topic_clean = re.sub(r"[^a-zA-Z0-9_]+", "", topic_input.replace(" ", "_"))[:50]
+    if not topic_clean:
+        topic_clean = "untitled"
     
     timestamp_local = datetime.now(ZoneInfo("America/New_York"))
     timestamp_iso = timestamp_local.isoformat()  # includes DST-aware offset, e.g., -04:00
@@ -91,7 +96,7 @@ def send_transcript_to_zapier():
         
         # For the spreadsheet
         "Timestamp": timestamp_local.strftime("%Y-%m-%d %H:%M:%S %Z"),
-        "Topic": st.session_state.get("debate_prop") or "No topic provided",
+        "Topic": topic_display,
         "User A Name": st.session_state.get("user_A_name") or "User A",
         "User B Name": st.session_state.get("user_B_name") or "User B",
         "User A Position": st.session_state.get("user_A_position") or "No position provided",
