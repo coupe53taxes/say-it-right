@@ -78,11 +78,16 @@ def send_transcript_to_zapier():
     transcript_lines.append(f"=== New Debate Session ===")
     transcript_lines.append(f"Timestamp: {datetime.now(ZoneInfo('America/New_York')).strftime('%Y-%m-%d %H:%M:%S')}")
     transcript_lines.append(f"Topic: {st.session_state.get('debate_topic_input', 'No topic provided')}")
-    transcript_lines.append(f"{st.session_state.user_A_name} position: {st.session_state.user_A_position}")
-    transcript_lines.append(f"{st.session_state.user_B_name} position: {st.session_state.user_B_position}")
+    user_a_name = st.session_state.get("user_A_name", "User A") or "User A"
+    user_b_name = st.session_state.get("user_B_name", "User B") or "User B"
+    user_a_position = st.session_state.get("user_A_position", "") or "(No position entered)"
+    user_b_position = st.session_state.get("user_B_position", "") or "(No position entered)"
+
+    transcript_lines.append(f"{user_a_name} position: {user_a_position}")
+    transcript_lines.append(f"{user_b_name} position: {user_b_position}")
     
     for entry in st.session_state.fight_history:
-        user_name = st.session_state.user_A_name if entry['user'] == 'A' else st.session_state.user_B_name
+        user_name = user_a_name if entry['user'] == 'A' else user_b_name
         transcript_lines.append(f"\n{user_name} INPUT:\n{entry.get('raw_input', '')}")
         transcript_lines.append(f"FEEDBACK:\n{entry.get('feedback', '')}")
         transcript_lines.append(f"FINAL REPLY:\n{entry['message']}")
