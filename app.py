@@ -46,8 +46,12 @@ initialize_state()
 #for unique user data
 import uuid
 
+query_params = st.experimental_get_query_params()
 if "user_id" not in st.session_state:
-    st.session_state.user_id = str(uuid.uuid4())
+    if "uid" in query_params:
+        st.session_state.user_id = query_params["uid"][0]
+    else:
+        st.session_state.user_id = str(uuid.uuid4())
 
 if "session_id" not in st.session_state:
     st.session_state.session_id = str(uuid.uuid4())
@@ -162,7 +166,7 @@ def log_user_activity():
 # Goal Selection Grid
 if st.session_state.stage == "goal_select":
     st.title("CoolerHeads")
-    st.caption("Diffuse the conflict. Strengthen the relationships. Seek the truth.")
+    st.caption("Diffuse the conflict. Strengthen the relationship. Seek the truth.")
     st.subheader("Choose your situation:")
 
     cols = st.columns(2)
