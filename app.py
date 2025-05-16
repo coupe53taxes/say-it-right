@@ -197,8 +197,8 @@ elif st.session_state.stage == "debate_setup":
         }, {
             "role": "user",
             "content": f"Topic: {st.session_state.debate_topic_input}\n"
-                       f"{st.session_state.user_A_name}: {st.session_state.user_A_position}\n"
-                       f"{st.session_state.user_B_name}: {st.session_state.user_B_position}"
+                   f"{st.session_state.user_A_name}: {st.session_state.user_A_position}\n"
+                   f"{st.session_state.user_B_name}: {st.session_state.user_B_position}"
         }]
         st.session_state.debate_prop = call_gpt(prop_prompt)
         st.session_state.stage = "proposition_review"
