@@ -43,6 +43,15 @@ def initialize_state():
 
 initialize_state()
 
+#for unique user data
+import uuid
+
+if "user_id" not in st.session_state:
+    st.session_state.user_id = str(uuid.uuid4())
+
+if "session_id" not in st.session_state:
+    st.session_state.session_id = str(uuid.uuid4())
+
 # GPT Call Helper
 def call_gpt(messages):
     response = client.chat.completions.create(
@@ -114,6 +123,22 @@ def send_transcript_to_zapier():
         requests.post(zapier_url, json=payload)
     except Exception as e:
         st.error(f"Failed to send transcript to Zapier: {e}")
+
+def log_user_activity():
+    activity_payload = {
+        "Timestamp": datetime.now(ZoneInfo("America/New_York")).strftime("%Y-%m-%d %H:%M:%S %Z"),
+        "User ID": st.session_state.user_id,
+        "Session ID": st.session_state.session_id,
+        "Stage Reached": st.session_state.stage,
+        "Number of Rounds": len(st.session_state.fight_history),
+        "Topic": st.session_state.get("debate_topic_input", "N/A").strip() or "N/A",
+        "User Rating": "N/A"  # Placeholder
+    }
+
+    try:
+        requests.post(st.secrets["ZAPIER_ACTIVITY_WEBHOOK_URL"], json=activity_payload)
+    except Exception as e:
+        st.error(f"Failed to send user activity log: {e}")
 
 # Goal Selection Grid
 if st.session_state.stage == "goal_select":
@@ -256,6 +281,7 @@ elif st.session_state.stage == "summary":
         st.success(winner_judgment)
 
     send_transcript_to_zapier()
+    log_user_activity()
 
 # Sidebar
 with st.sidebar:
