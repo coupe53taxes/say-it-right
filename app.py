@@ -78,7 +78,7 @@ def send_transcript_to_zapier():
     topic_display = topic_input if topic_input else "No topic provided"
 
     # Clean version for filenames: underscores, no special chars
-    topic_clean = re.sub(r"[^a-zA-Z0-9_]+", "", topic_input.replace(" ", "_"))[:50]
+    topic_clean = re.sub(r"[^a-zA-Z0-9_]+", "", topic_input.replace(" ", "_")).lower()[:50]
     if not topic_clean:
         topic_clean = "untitled"
     
