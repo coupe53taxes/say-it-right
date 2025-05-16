@@ -124,6 +124,7 @@ def send_transcript_to_zapier():
         "filename_timestamp": timestamp_label,
         
         # For the spreadsheet
+        "User ID": st.session_state.user_id,
         "Timestamp": timestamp_local.strftime("%Y-%m-%d %H:%M:%S %Z"),
         "Topic": topic_display,
         "User A Name": st.session_state.get("user_A_name") or "User A",
