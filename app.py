@@ -137,10 +137,10 @@ elif st.session_state.stage == "debate_setup":
     st.header("Set up your debate")
 
     st.text_area("Debate Topic:", key="debate_topic_input")
-    st.text_input("User A Name:", key="user_A_name")
-    st.text_area("Position of User A:", key="user_A_position")
-    st.text_input("User B Name:", key="user_B_name")
-    st.text_area("Position of User B:", key="user_B_position")
+    st.text_input("User A Name:", key="user_A_name", value=st.session_state.user_A_name)
+    st.text_area("Position of User A:", key="user_A_position", value=st.session_state.user_A_position)
+    st.text_input("User B Name:", key="user_B_name", value=st.session_state.user_B_name)
+    st.text_area("Position of User B:", key="user_B_position", value=st.session_state.user_B_position)
 
     if st.button("Generate Proposition"):
         prop_prompt = [{
